@@ -1,0 +1,10 @@
+install!'cocoapods',:deterministic_uuids=>false
+
+platform :macos, '10.14'
+
+target 'WasmPatch-macOS' do
+
+  pod 'WasmPatch', :path => '../../'
+  pod 'WasmPatch-TestCase', :path => '../../TestCase/'
+
+end

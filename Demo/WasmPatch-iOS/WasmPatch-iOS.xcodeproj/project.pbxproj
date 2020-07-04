@@ -1,0 +1,416 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		24A8E871DD3D056EB12AC033 /* libPods-WasmPatch-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BBE0CCE27C2BBFED982DF08F /* libPods-WasmPatch-iOS.a */; };
+		D11FD2FE24A8E71100674092 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = D11FD2FD24A8E71100674092 /* AppDelegate.mm */; };
+		D11FD30424A8E71100674092 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D11FD30324A8E71100674092 /* ViewController.m */; };
+		D11FD30724A8E71100674092 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D11FD30524A8E71100674092 /* Main.storyboard */; };
+		D11FD30924A8E71200674092 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D11FD30824A8E71200674092 /* Assets.xcassets */; };
+		D11FD30C24A8E71200674092 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D11FD30A24A8E71200674092 /* LaunchScreen.storyboard */; };
+		D11FD30F24A8E71200674092 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D11FD30E24A8E71200674092 /* main.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		154F4E4E53016731CC0E1D11 /* libPods-WasmPatch-iOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WasmPatch-iOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BDBDBD7F5E2E36F04BC87DC /* Pods-WasmPatch-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WasmPatch-iOS.debug.xcconfig"; path = "Target Support Files/Pods-WasmPatch-iOS/Pods-WasmPatch-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		3A75E23BA529EAEEB144B304 /* Pods-WasmPatch-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WasmPatch-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-WasmPatch-iOSTests/Pods-WasmPatch-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		5443104AD07B7B0FEF0F47B2 /* Pods-WasmPatch-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WasmPatch-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-WasmPatch-iOSTests/Pods-WasmPatch-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		BBE0CCE27C2BBFED982DF08F /* libPods-WasmPatch-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WasmPatch-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D11FD2F924A8E71100674092 /* WasmPatch-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WasmPatch-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D11FD2FC24A8E71100674092 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		D11FD2FD24A8E71100674092 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		D11FD30224A8E71100674092 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		D11FD30324A8E71100674092 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		D11FD30624A8E71100674092 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		D11FD30824A8E71200674092 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D11FD30B24A8E71200674092 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		D11FD30D24A8E71200674092 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D11FD30E24A8E71200674092 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EA37656F9491388F0E4F3096 /* Pods-WasmPatch-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WasmPatch-iOS.release.xcconfig"; path = "Target Support Files/Pods-WasmPatch-iOS/Pods-WasmPatch-iOS.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D11FD2F624A8E71100674092 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24A8E871DD3D056EB12AC033 /* libPods-WasmPatch-iOS.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8413AB7232CEE2EF006C7552 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				2BDBDBD7F5E2E36F04BC87DC /* Pods-WasmPatch-iOS.debug.xcconfig */,
+				EA37656F9491388F0E4F3096 /* Pods-WasmPatch-iOS.release.xcconfig */,
+				5443104AD07B7B0FEF0F47B2 /* Pods-WasmPatch-iOSTests.debug.xcconfig */,
+				3A75E23BA529EAEEB144B304 /* Pods-WasmPatch-iOSTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		D11FD2F024A8E71100674092 = {
+			isa = PBXGroup;
+			children = (
+				D11FD2FB24A8E71100674092 /* WasmPatch-iOS */,
+				D11FD2FA24A8E71100674092 /* Products */,
+				8413AB7232CEE2EF006C7552 /* Pods */,
+				ED0FCABE041DCAAF8901FD8E /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		D11FD2FA24A8E71100674092 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D11FD2F924A8E71100674092 /* WasmPatch-iOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D11FD2FB24A8E71100674092 /* WasmPatch-iOS */ = {
+			isa = PBXGroup;
+			children = (
+				D11FD2FC24A8E71100674092 /* AppDelegate.h */,
+				D11FD2FD24A8E71100674092 /* AppDelegate.mm */,
+				D11FD30224A8E71100674092 /* ViewController.h */,
+				D11FD30324A8E71100674092 /* ViewController.m */,
+				D11FD30524A8E71100674092 /* Main.storyboard */,
+				D11FD30824A8E71200674092 /* Assets.xcassets */,
+				D11FD30A24A8E71200674092 /* LaunchScreen.storyboard */,
+				D11FD30D24A8E71200674092 /* Info.plist */,
+				D11FD30E24A8E71200674092 /* main.m */,
+			);
+			path = "WasmPatch-iOS";
+			sourceTree = "<group>";
+		};
+		ED0FCABE041DCAAF8901FD8E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BBE0CCE27C2BBFED982DF08F /* libPods-WasmPatch-iOS.a */,
+				154F4E4E53016731CC0E1D11 /* libPods-WasmPatch-iOSTests.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D11FD2F824A8E71100674092 /* WasmPatch-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D11FD31D24A8E71200674092 /* Build configuration list for PBXNativeTarget "WasmPatch-iOS" */;
+			buildPhases = (
+				BB63144D2F0A681B179282A0 /* [CP] Check Pods Manifest.lock */,
+				D11FD2F524A8E71100674092 /* Sources */,
+				D11FD2F624A8E71100674092 /* Frameworks */,
+				D11FD2F724A8E71100674092 /* Resources */,
+				E57166EAC8270E2166CB1176 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "WasmPatch-iOS";
+			productName = "WasmPatch-iOS";
+			productReference = D11FD2F924A8E71100674092 /* WasmPatch-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D11FD2F124A8E71100674092 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1150;
+				ORGANIZATIONNAME = everettjf;
+				TargetAttributes = {
+					D11FD2F824A8E71100674092 = {
+						CreatedOnToolsVersion = 11.5;
+					};
+				};
+			};
+			buildConfigurationList = D11FD2F424A8E71100674092 /* Build configuration list for PBXProject "WasmPatch-iOS" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D11FD2F024A8E71100674092;
+			productRefGroup = D11FD2FA24A8E71100674092 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D11FD2F824A8E71100674092 /* WasmPatch-iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D11FD2F724A8E71100674092 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D11FD30C24A8E71200674092 /* LaunchScreen.storyboard in Resources */,
+				D11FD30924A8E71200674092 /* Assets.xcassets in Resources */,
+				D11FD30724A8E71100674092 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BB63144D2F0A681B179282A0 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WasmPatch-iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E57166EAC8270E2166CB1176 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WasmPatch-iOS/Pods-WasmPatch-iOS-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WasmPatch-iOS/Pods-WasmPatch-iOS-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WasmPatch-iOS/Pods-WasmPatch-iOS-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D11FD2F524A8E71100674092 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D11FD30424A8E71100674092 /* ViewController.m in Sources */,
+				D11FD2FE24A8E71100674092 /* AppDelegate.mm in Sources */,
+				D11FD30F24A8E71200674092 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		D11FD30524A8E71100674092 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D11FD30624A8E71100674092 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		D11FD30A24A8E71200674092 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D11FD30B24A8E71200674092 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D11FD31B24A8E71200674092 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		D11FD31C24A8E71200674092 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D11FD31E24A8E71200674092 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2BDBDBD7F5E2E36F04BC87DC /* Pods-WasmPatch-iOS.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YPV49M8592;
+				INFOPLIST_FILE = "WasmPatch-iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.everettjf.WasmPatch-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D11FD31F24A8E71200674092 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA37656F9491388F0E4F3096 /* Pods-WasmPatch-iOS.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YPV49M8592;
+				INFOPLIST_FILE = "WasmPatch-iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.everettjf.WasmPatch-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D11FD2F424A8E71100674092 /* Build configuration list for PBXProject "WasmPatch-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D11FD31B24A8E71200674092 /* Debug */,
+				D11FD31C24A8E71200674092 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D11FD31D24A8E71200674092 /* Build configuration list for PBXNativeTarget "WasmPatch-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D11FD31E24A8E71200674092 /* Debug */,
+				D11FD31F24A8E71200674092 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D11FD2F124A8E71100674092 /* Project object */;
+}

@@ -1,0 +1,5 @@
+Pods/
+WasmPatch-macOS.xcodeproj/project.xcworkspace/xcuserdata/
+WasmPatch-macOS.xcodeproj/xcuserdata/
+WasmPatch-macOS.xcworkspace/xcuserdata/
+Podfile.lock
