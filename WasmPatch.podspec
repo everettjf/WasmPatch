@@ -27,7 +27,7 @@ Pod::Spec.new do |spec|
   # spec.tvos.deployment_target = "9.0"
 
 
-  spec.source       = { :git => "https://github.com/WasmPatch/WasmPatch.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/everettjf/WasmPatch.git", :tag => "#{spec.version}" }
 
 
   spec.source_files  = "WasmPatch/Classes/**/*"
