@@ -1,6 +1,6 @@
 # WasmPatch
 
-*Yet Another Patch Module For iOS/macOS* 
+*Yet Another Patch Module for iOS/macOS via WebAssembly* 
 
 [![GitHub issues](https://img.shields.io/github/issues-raw/everettjf/WasmPatch?style=flat-square&label=issues&color=success)](https://github.com/everettjf/WasmPatch/issues) 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/everettjf/WasmPatch)
