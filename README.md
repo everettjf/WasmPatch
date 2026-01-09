@@ -4,8 +4,6 @@
 [![GitHub issues](https://img.shields.io/github/issues-raw/everettjf/WasmPatch?style=flat-square&label=issues&color=success)](https://github.com/everettjf/WasmPatch/issues)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/everettjf/WasmPatch/blob/master/LICENSE)
 [![Twitter](https://img.shields.io/twitter/follow/everettjf?style=flat-square&color=1da1f2&label=twitter&logo=twitter)](https://twitter.com/everettjf)
-[![Discord](https://img.shields.io/discord/728632973670219870?style=flat-square&logo=discord&color=7289da&label=discord)](https://discord.gg/7qWjfzj)
-[![Telegram](https://img.shields.io/badge/telegram-chat-0088cc?style=flat-square&logo=telegram)](https://t.me/wasmpatch)
 
 WasmPatch bridges Objective-C and WebAssembly: it compiles C code into WebAssembly modules and lets those modules call any Objective-C class or method dynamically. This gives apps the ability to hot-fix bugs or add features by patching Objective-C code through WebAssembly payloads.
 
@@ -198,8 +196,6 @@ dealloc_array(params);
 
 ## Community
 - Twitter: [@everettjf](https://twitter.com/everettjf)
-- Discord: [discord.gg/7qWjfzj](https://discord.gg/7qWjfzj)
-- Telegram: [t.me/wasmpatch](https://t.me/wasmpatch)
 
 Wish you enjoy :)
 
