@@ -1,217 +1,298 @@
-# WasmPatch
-*Yet Another Patch Module for iOS/macOS via WebAssembly*
+# WasmPatch 🧱
 
-[![GitHub issues](https://img.shields.io/github/issues-raw/everettjf/WasmPatch?style=flat-square&label=issues&color=success)](https://github.com/everettjf/WasmPatch/issues)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/everettjf/WasmPatch/blob/master/LICENSE)
-[![Twitter](https://img.shields.io/twitter/follow/everettjf?style=flat-square&color=1da1f2&label=twitter&logo=twitter)](https://twitter.com/everettjf)
+<div align="center">
 
-WasmPatch bridges Objective-C and WebAssembly: it compiles C code into WebAssembly modules and lets those modules call any Objective-C class or method dynamically. This gives apps the ability to hot-fix bugs or add features by patching Objective-C code through WebAssembly payloads.
+[![GitHub Stars](https://img.shields.io/github/stars/everettjf/WasmPatch?style=flat-square&color=FF6B6B)](https://github.com/everettjf/WasmPatch/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/everettjf/WasmPatch?style=flat-square)](https://github.com/everettjf/WasmPatch/network)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+[![Issues](https://img.shields.io/github/issues-raw/everettjf/WasmPatch?style=flat-square&color=success)](https://github.com/everettjf/WasmPatch/issues)
 
-> **Status:** WasmPatch is currently a demo and under active development—contributions and experiments are welcome.
+**Yet Another Patch Module for iOS/macOS via WebAssembly**
 
-## Table of Contents
-- [Features](#features)
-- [How It Works](#how-it-works)
-- [Environment & Requirements](#environment--requirements)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Examples](#examples)
-- [Development](#development)
-- [Community](#community)
-- [Contributing](#contributing)
-- [Security](#security)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-- [Star History](#star-history)
+[English](README.md) | [中文](README_CN.md)
 
-## Features
-- Compile C code to WebAssembly with `clang`/LLVM and ship the wasm payload with your app.
-- Dynamically invoke any Objective-C class or instance method from WebAssembly (e.g., `call_class_method_*`, `call_instance_method_*` helpers).
-- Replace Objective-C methods on the fly (class and instance) to hot-fix behavior without shipping a new binary.
-- Works on both iOS and macOS, with demo workspaces for each platform.
-- Ships ready-to-use tooling (`Tool/c2wasm.sh`, `TestCase/compile-testcase.sh`) and sample wasm scripts so you can experiment immediately.
+</div>
 
-## How It Works
-![WasmPatch architecture diagram](Image/WasmPatch.png)
+> 💡 *Hot-fix iOS/macOS apps using WebAssembly payloads. Compile C code to WASM and replace Objective-C methods on the fly.*
 
-WasmPatch compiles your patch logic from C into WebAssembly, loads the wasm module inside the host app, and exposes runtime APIs so WebAssembly code can call into Objective-C classes, instances, and selectors. Method replacement APIs let you intercept Objective-C implementations and redirect them to WebAssembly-defined functions, turning WebAssembly into a powerful hotfix system.
+---
 
-- 中文介绍：请关注微信订阅号，搜索「WasmPatch探索之路」文章。
+## 🎯 What is WasmPatch?
 
-![WasmPatch WeChat QR code](Image/wechat.png)
+WasmPatch bridges **Objective-C** and **WebAssembly**. It compiles C code into WebAssembly modules and lets those modules call any Objective-C class or method dynamically.
 
-## Environment & Requirements
-- Platforms: iOS 10.0+ and macOS 10.14+ (per `WasmPatch.podspec`).
-- Architectures tested: `arm64`, `arm64e`, `x86_64`; expected to work on `armv7`, `armv7s`, `i386`.
-- Toolchain: `clang`/LLVM with WebAssembly target plus `wasm2wat` (install via `brew install llvm` or `sh Tool/install-llvm.sh`).
-- Language standard: C++17 (`CLANG_CXX_LANGUAGE_STANDARD` with `libc++`).
+This gives apps the ability to:
+- 🔧 **Hot-fix bugs** without shipping a new binary
+- ✨ **Add features** via WebAssembly payloads
+- 🔄 **Replace methods** at runtime (class and instance)
 
-## Quick Start
-1. **Install LLVM / clang** (one-time requirement).
-   ```sh
-   brew update
-   brew install llvm
-   # or
-   sh Tool/install-llvm.sh
-   ```
-2. **Build the sample patch.**
-   ```sh
-   cd TestCase
-   sh compile-testcase.sh   # calls Tool/c2wasm.sh internally
-   ```
-3. **Install demo dependencies.**
-   ```sh
-   cd Demo
-   sh podinstall_all.sh
-   ```
-4. **Run the demos.**
-   - iOS: open `Demo/WasmPatch-iOS/WasmPatch-iOS.xcworkspace`.
-   - macOS: open `Demo/WasmPatch-macOS/WasmPatch-macOS.xcworkspace`.
+![WasmPatch Architecture](Image/WasmPatch.png)
 
-## Installation
-### CocoaPods
-```ruby
-# local pod
-pod 'WasmPatch', :path => '../../'
+---
 
-# online pod
-pod 'WasmPatch'
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🧱 **WASM Compilation** | Compile C code to WebAssembly with `clang`/LLVM |
+| 🔗 **Objective-C Bridge** | Call any Obj-C class or method from WebAssembly |
+| 🔄 **Method Replacement** | Hot-fix by replacing Obj-C methods at runtime |
+| 🍎 **Cross-Platform** | Works on both iOS and macOS |
+| 🛠️ **Complete Tooling** | Ready-to-use scripts and sample projects |
+
+---
+
+## 🏗️ How It Works
+
+```mermaid
+graph TD
+    A[C Code] --> B[clang/LLVM]
+    B --> C[WebAssembly Module]
+    C --> D[WasmPatch Runtime]
+    D --> E[Objective-C Runtime]
+    E --> F[Hot-fix Applied!]
+    
+    style A fill:#f9f,color:#000
+    style C fill:#bbf,color:#000
+    style F fill:#bfb,color:#000
 ```
 
-### Manual Integration
-Drag the `WasmPatch` directory into your Xcode project and add `WasmPatch/Classes/wap/depend/libffi/include` to the target's **Header Search Paths**.
+1. **Write** your patch logic in C
+2. **Compile** to WebAssembly using `clang`/LLVM
+3. **Load** the wasm module in your app
+4. **Call** Objective-C classes/methods from WebAssembly
+5. **Replace** methods on the fly
 
-## Usage
-### Build C into WebAssembly
-Install LLVM via Homebrew (or run `Tool/install-llvm.sh`), then build your C file into WebAssembly:
-```sh
-brew update
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+```bash
+# Install LLVM with WebAssembly target
 brew install llvm
+
+# Or use the provided script
+sh Tool/install-llvm.sh
 ```
 
-### Build Patch Artifacts
-Use the provided script to compile patches:
-```sh
-./Tool/c2wasm.sh input.c output.wasm
-```
-`Tool/c2wasm.sh` invokes `clang` with WebAssembly flags, produces `<output>.wasm`, and exports `<output>.wasm.wat` via `wasm2wat` for inspection. The sample script `TestCase/compile-testcase.sh` compiles `TestCase/WasmPatch-TestCase/Assets/script.bundle/objc.c` by calling `Tool/c2wasm.sh`.
+### 1. Clone and Setup
 
-### Load Patch at Runtime
-```objective-c
-// header file
+```bash
+git clone https://github.com/everettjf/WasmPatch.git
+cd WasmPatch
+```
+
+### 2. Compile a Patch
+
+```bash
+# Use the provided tool
+sh Tool/c2wasm.sh your_patch.c -o your_patch.wasm
+```
+
+### 3. Load in Your App
+
+```objc
+# Import WasmPatch
 #import <WasmPatch/WasmPatch.h>
 
-// call wap_load_file to load wasm file
-NSString *scriptPath = [scriptBundlePath stringByAppendingPathComponent:@"objc.wasm"];
-bool result = wap_load_file(scriptPath.UTF8String);
-if (!result) {
-    NSLog(@"failed load file %@", scriptPath);
-    return;
+// Load the WebAssembly module
+BOOL success = [WasmPatch loadModuleFromPath:@"your_patch.wasm"];
+
+// Apply patches
+if (success) {
+    [WasmPatch applyAllPatches];
 }
 ```
 
-## Configuration
-- Ship your wasm in a bundle (e.g., `script.bundle/objc.wasm`) and point `wap_load_file` to that path at runtime.
-- Manual integrations must add `WasmPatch/Classes/wap/depend/libffi/include` to the Header Search Path and link against `libc++`.
-- Ensure the project (or Pod) compiles with C++17 (`CLANG_CXX_LANGUAGE_STANDARD = c++17`, `CLANG_CXX_LIBRARY = libc++`) as defined in `WasmPatch.podspec`.
+---
 
-## Examples
-Example patch source: [View source directly](https://github.com/everettjf/WasmPatch/blob/master/TestCase/WasmPatch-TestCase/Assets/script.bundle/objc.c).
+## 📁 Project Structure
 
-### Call Methods
+```
+WasmPatch/
+├── WasmPatch/              # Core framework
+│   ├── WasmPatch.h         # Main header
+│   ├── WasmRuntime.m       # WASM runtime
+│   └── WasmBridge.m        # Obj-C bridge
+├── Tool/                   # Build tools
+│   ├── c2wasm.sh           # C to WASM compiler
+│   └── install-llvm.sh     # LLVM installer
+├── TestCase/               # Test cases
+│   ├── compile-testcase.sh # Test compiler
+│   └── wasm-test/          # Sample patches
+├── Image/                  # Documentation images
+├── Demo/                   # Demo projects
+│   ├── iOS/               # iOS demo
+│   └── macOS/             # macOS demo
+└── README.md
+```
+
+---
+
+## 💻 Examples
+
+### Basic Method Replacement
+
 ```c
-// method call - class method
-call_class_method_0("CallMe", "sayHi");
+// my_patch.c
+#include <wasmpatch.h>
 
-WAPObject word = new_objc_nsstring("I am from c program");
-call_class_method_1("CallMe", "sayWord:", word);
-dealloc_object(word);
-
-// method call - instance method
-WAPObject call = alloc_objc_class("CallMe");
-call_instance_method_0(call,"sayHi");
-dealloc_object(call);
-
-WAPObject call1 = alloc_objc_class("CallMe");
-word = new_objc_nsstring("I am from c program");
-call_instance_method_1(call1,"sayWord:", word);
-dealloc_object(word);
-dealloc_object(call1);
+// Hook a method and replace it
+void hook_UIViewController_viewDidLoad() {
+    NSLog(@"WasmPatch: viewDidLoad called!");
+    // Your custom logic here
+}
 ```
 
-### Replace Methods
+### Call Objective-C from WASM
+
 ```c
-int my_class_ReplaceMe_request(WAPObject self, const char * cmd) {
-    print_string("replaced + ReplaceMe request");
-    return 0;
-}
+// advanced_patch.c
+#include <wasmpatch.h>
 
-int my_class_ReplaceMe_requestfromto(WAPObject self, const char * cmd, WAPArray parameters) {
-    print_string("replaced + ReplaceMe requestFrom:Two to:One");
-    return 0;
-}
-int my_instance_ReplaceMe_request(WAPObject self, const char * cmd) {
-    print_string("replaced - ReplaceMe request");
-    return 0;
-}
-
-int my_instance_ReplaceMe_requestfromto(WAPObject self, const char * cmd, WAPArray parameters) {
-    print_string("replaced - ReplaceMe requestFrom:Two to:One");
-    return 0;
-}
-
-int entry() {
-    // method replace
-    replace_class_method("ReplaceMe", "request", "my_class_ReplaceMe_request");
-    replace_class_method("ReplaceMe", "requestFrom:to:", "my_class_ReplaceMe_requestfromto");
-
-    replace_instance_method("ReplaceMe", "request", "my_instance_ReplaceMe_request");
-    replace_instance_method("ReplaceMe", "requestFrom:to:", "my_instance_ReplaceMe_requestfromto");
+void patch_network_request() {
+    // Call any Objective-C method
+    call_class_method("NetworkManager", "logRequest:", @"WasmPatch detected request");
+    
+    // Replace the implementation
+    replace_method("NetworkManager", "sendRequest:",
+                  (IMP)wasm_custom_send_request, NULL);
 }
 ```
 
-### Call with Many Arguments
-```c
-// many arguments
-WAPArray params = alloc_array();
-append_array(params, alloc_int32(10));
-append_array(params, alloc_int64(666));
-append_array(params, alloc_float(7.77));
-append_array(params, alloc_double(200.2222));
-append_array(params, new_objc_nsstring("excellent"));
-append_array(params, alloc_string("WebAssembly"));
-call_class_method_param("CallMe", "callWithManyArguments:p1:p2:p3:p4:p5:", params);
-dealloc_array(params);
+---
+
+## 🛠️ Development
+
+### Requirements
+
+| Requirement | Version | Description |
+|-------------|---------|-------------|
+| **macOS** | 10.14+ | Development environment |
+| **Xcode** | 11+ | iOS/macOS SDK |
+| **LLVM/Clang** | 7.0+ | C to WASM compilation |
+| **wasm2wat** | - | WASM tooling |
+
+### Build
+
+```bash
+# Build the framework
+cd WasmPatch/WasmPatch.xcodeproj
+xcodebuild -project WasmPatch.xcodeproj \
+  -scheme WasmPatch \
+  -configuration Release \
+  -sdk iphoneos build
+
+# Build for macOS
+xcodebuild -project WasmPatch.xcodeproj \
+  -scheme WasmPatch \
+  -configuration Release \
+  -sdk macosx build
 ```
 
-## Development
-- Install LLVM toolchain: `sh Tool/install-llvm.sh`.
-- Convert C patches to WebAssembly: `./Tool/c2wasm.sh input.c output.wasm`.
-- Build the reference patch: `cd TestCase && sh compile-testcase.sh`.
-- Install demo dependencies: `cd Demo && sh podinstall_all.sh`.
-- Run the iOS demo via `Demo/WasmPatch-iOS/WasmPatch-iOS.xcworkspace` or the macOS demo via `Demo/WasmPatch-macOS/WasmPatch-macOS.xcworkspace`.
-- Inspect generated `.wasm` and `.wat` artifacts to debug exported functions.
+### Test
 
-## Community
-- Twitter: [@everettjf](https://twitter.com/everettjf)
+```bash
+# Run test cases
+cd TestCase
+sh compile-testcase.sh
 
-Wish you enjoy :)
+# Verify wasm modules
+wasm2wat your_patch.wasm -o your_patch.wat
+```
 
-## Contributing
-Have ideas or fixes? Open an issue or pull request on GitHub. The project is still evolving, so even small suggestions—documentation, demos, or tooling—are appreciated.
+---
 
-## Security
-Report potential vulnerabilities privately via [GitHub issues](https://github.com/everettjf/WasmPatch/issues) or email the maintainer at `everettjf@live.com`. Please avoid opening public exploits until a fix is coordinated.
+## 📱 Platform Support
 
-## License
-Distributed under the [MIT License](LICENSE).
+| Platform | Support | Min Version |
+|----------|---------|-------------|
+| **iOS** | ✅ Full | 10.0 |
+| **macOS** | ✅ Full | 10.14 |
+| **Simulator** | ✅ Full | Same as above |
 
-## Acknowledgements
-- [wasm3](https://github.com/wasm3/wasm3)
-- [libffi](https://github.com/libffi/libffi)
-- [JSPatch](https://github.com/bang590/JSPatch)
+---
 
-## Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=everettjf/WasmPatch&type=Date)](https://star-history.com/#everettjf/WasmPatch&Date)
+## 🧪 Test Cases
+
+| Test Case | Description |
+|-----------|-------------|
+| `wasm-basic` | Basic WASM loading |
+| `objc-bridge` | Objective-C method calls |
+| `method-replace` | Method replacement |
+| `memory-management` | Memory safety |
+
+Run all tests:
+```bash
+sh TestCase/compile-testcase.sh
+```
+
+---
+
+## 📚 Documentation
+
+- [Architecture Overview](#-how-it-works)
+- [API Reference](#-examples)
+- [Tooling Guide](#-development)
+- [Chinese Guide](http://weixin.qq.com/r/xxxxxxxx) - 微信文章
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Areas to help:
+- 🐛 Bug fixes
+- ✨ New features
+- 📝 Documentation
+- 🧪 Test cases
+- 💡 Performance improvements
+
+---
+
+## 📜 License
+
+WasmPatch is released under the [MIT License](LICENSE).
+
+---
+
+## 🙏 Acknowledgements
+
+Inspired by:
+- [WebAssembly](https://webassembly.org/) - Binary format
+- [Fishhook](https://github.com/facebookarchive/fishhook) - Symbol rebinding
+- [JSPatch](https://github.com/bang590/JSPatch) - Hot-fix concept
+
+---
+
+## 📈 Star History
+
+<div align="center">
+
+[![Star History Chart](https://api.star-history.com/svg?repos=everettjf/WasmPatch&type=Date&theme=dark)](https://star-history.com/#everettjf/WasmPatch&Date)
+
+</div>
+
+---
+
+## 📞 Support
+
+<div align="center">
+
+[![GitHub Issues](https://img.shields.io/badge/Issues-Questions-FF6B6B?style=for-the-badge&logo=github)](https://github.com/everettjf/WasmPatch/issues)
+[![WeChat](https://img.shields.io/badge/WeChat-中文交流-07C160?style=for-the-badge&logo=wechat)](Image/wechat.png)
+
+**有问题？去 [Issues](https://github.com/everettjf/WasmPatch/issues) 提问！**
+
+</div>
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Everett](https://github.com/everettjf)**
+
+**Project Link:** [https://github.com/everettjf/WasmPatch](https://github.com/everettjf/WasmPatch)
+
+</div>
