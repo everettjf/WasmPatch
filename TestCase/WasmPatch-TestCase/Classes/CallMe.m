@@ -36,6 +36,14 @@
     NSLog(@"+ %@ %@ p0=%d, p1=%lld, p2=%f, p3=%lf, p4=%@, p5=%s",NSStringFromClass(self.class),NSStringFromSelector(_cmd),p0,p1,p2,p3,p4,p5);
 }
 
++ (const char *)echoCString:(const char *)value {
+    return value;
+}
+
++ (const char *)staticCString {
+    return "Hello from Objective-C";
+}
+
 // return value
 - (NSString*)returnString {
     return @"Hello WebAssembly";

@@ -50,6 +50,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <inttypes.h>
+#include <cstring>
 
 #include "wap_util.hpp"
 
@@ -108,11 +109,13 @@ public:
     WasmRuntime() {
         m_env = m3_NewEnvironment();
         if (!m_env) {
+            setError("init environment failed");
             WAP_LOG_ERROR("init environment failed");
         }
         
         m_runtime = m3_NewRuntime(m_env, 8192, NULL);
         if (!m_runtime) {
+            setError("init runtime failed");
             WAP_LOG_ERROR("init runtime failed");
         }
     }
@@ -135,6 +138,7 @@ public:
     
     bool loadData(const std::string & buffer) {
         if (buffer.empty()) {
+            setError("load failed: empty wasm buffer");
             return false;
         }
         
@@ -146,22 +150,34 @@ public:
         M3Result result = m3Err_none;
         result = m3_ParseModule(m_env, &m_module, wasm_code, code_fsize);
         if (result) {
+            setError(std::string("m3_ParseModule: ") + result);
             WAP_LOG_ERROR("m3_ParseModule: %s", result);
             return false;
         }
 
         result = m3_LoadModule(m_runtime, m_module);
         if (result) {
+            setError(std::string("m3_LoadModule: ") + result);
             WAP_LOG_ERROR("m3_LoadModule: %s", result);
             return false;
         }
         
+        clearError();
         return true;
+    }
+
+    bool loadData(const void * bytes, size_t size) {
+        if (!bytes || size == 0) {
+            setError("load failed: empty wasm buffer");
+            return false;
+        }
+        return loadData(std::string((const char *)bytes, size));
     }
     
     bool loadFile(const std::string & path) {
         std::string buffer;
         if (!read_buffer_from_file(path, buffer)) {
+            setError(std::string("read file failed: ") + path);
             WAP_LOG_ERROR("read file failed");
             return false;
         }
@@ -175,12 +191,14 @@ public:
         IM3Function f;
         result = m3_FindFunction(&f, m_runtime, function_name);
         if (result) {
+            setError(std::string("m3_FindFunction(") + function_name + "): " + result);
             WAP_LOG_ERROR("m3_FindFunction: %s", result);
             return false;
         }
         
         result = m3_CallWithArgs(f, parameter_count, parameters);
         if (result) {
+            setError(std::string("m3_CallWithArgs(") + function_name + "): " + result);
             WAP_LOG_ERROR("m3_CallWithArgs: %s", result);
             return false;
         }
@@ -188,6 +206,7 @@ public:
         if (out_return) {
             *out_return = *(OutRet*)(m_runtime->stack);
         }
+        clearError();
         return true;
     }
     
@@ -206,10 +225,12 @@ public:
         
         result = m3_LinkRawFunction(m_module, "*", function_name, signature, raw_call);
         if (result) {
+            setError(std::string("m3_LinkRawFunction(") + function_name + "): " + result);
             WAP_LOG_ERROR("m3_LinkRawFunction(%s): %s", function_name, result);
             return false;
         }
         
+        clearError();
         return true;
     }
     
@@ -227,11 +248,25 @@ public:
         char *vram = memoryStart();
         return (char*)(vram + offset);
     }
+
+    const std::string & lastError() const {
+        return m_lastError;
+    }
+
 private:
+    void setError(const std::string & error) {
+        m_lastError = error;
+    }
+
+    void clearError() {
+        m_lastError.clear();
+    }
+
     IM3Environment m_env = nullptr;
     IM3Runtime m_runtime = nullptr;
     IM3Module m_module = nullptr;
     std::string m_buffer;
+    std::string m_lastError;
 };
 
 }

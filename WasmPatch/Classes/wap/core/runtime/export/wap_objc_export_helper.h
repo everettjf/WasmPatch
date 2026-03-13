@@ -12,8 +12,11 @@
 #include "../wap_objc_define.h"
 
 WAPObject new_objc_nsstring(WAPClassName str) {
+    if (!str) {
+        return WAPCreateObjectFromObjcValue("objc", nil);
+    }
     NSString *string = [NSString stringWithUTF8String:str];
-    return WAPCreateObjectFromObjcValue("string",string);
+    return WAPCreateObjectFromObjcValue("objc", string);
 }
 
 __WAP_EXPORT_FUNCTION(new_objc_nsstring_raw) {
@@ -24,7 +27,7 @@ __WAP_EXPORT_FUNCTION(new_objc_nsstring_raw) {
 }
 
 WAPObject new_objc_nsnumber_int(int value) {
-    return WAPCreateObjectFromPlainValue("int32",@(value));
+    return WAPCreateObjectFromObjcValue("objc", @(value));
 }
 
 __WAP_EXPORT_FUNCTION(new_objc_nsnumber_int_raw) {

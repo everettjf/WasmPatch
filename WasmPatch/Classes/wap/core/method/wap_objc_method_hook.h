@@ -24,6 +24,10 @@ public:
         void * function_address;
         ffi_cif cif;
         
+        Class targetClass;
+        SEL targetSelector;
+        IMP originalImplementation;
+        const char *typeEncoding;
         ffi_type *returnType;
         ffi_type **args;
         unsigned int argCount;
@@ -35,11 +39,12 @@ public:
     std::string replacementName;
     bool isInstance;
     
-    HookContext context;
+    HookContext context{};
     ObjcMethodSignature signature;
 
 public:
     ObjcMethodHook(const char *className, const char* selName, bool isInstance, const char *replacementName);
+    ~ObjcMethodHook();
     
     void hook();
     
@@ -51,4 +56,3 @@ using ObjcMethodHookPtr = std::shared_ptr<ObjcMethodHook>;
 }
 
 #endif /* ObjcMethodHook_h */
-

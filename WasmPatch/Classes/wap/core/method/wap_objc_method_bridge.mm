@@ -12,6 +12,173 @@
 
 namespace wap {
 
+static thread_local std::vector<std::string> g_returnedCStringStorage;
+
+template <typename T>
+static bool call_replacement(ObjcMethodHook *hook, const char **parameters, int parameterCount, T *outValue) {
+    return wap::ObjcRuntime::instance().runtime().call(hook->replacementName.c_str(), parameters, parameterCount, outValue);
+}
+
+static const char * normalized_encoding(const std::string & encoding) {
+    if (encoding.empty()) {
+        return "";
+    }
+    return encoding[0] == 'r' && encoding.size() > 1 ? encoding.c_str() + 1 : encoding.c_str();
+}
+
+static id consume_objc_return_object(uint64_t rawValue) {
+    if (rawValue == 0) {
+        return nil;
+    }
+
+    WAPInternalObject *object = GetInternalObject((WAPObject)rawValue);
+    if (!object) {
+        return nil;
+    }
+
+    id value = object->value;
+    delete object;
+    return value;
+}
+
+static const char * consume_c_string_return_value(uint64_t rawValue) {
+    if (rawValue == 0) {
+        return nullptr;
+    }
+
+    WAPInternalObject *object = GetInternalObject((WAPObject)rawValue);
+    if (!object) {
+        return nullptr;
+    }
+
+    const char *result = nullptr;
+    if (object->type == "string") {
+        NSString *stringValue = (NSString *)object->value;
+        if (stringValue) {
+            g_returnedCStringStorage.emplace_back(stringValue.UTF8String ?: "");
+            result = g_returnedCStringStorage.back().c_str();
+        }
+    } else if (object->cate == 'o' && [object->value isKindOfClass:[NSString class]]) {
+        NSString *stringValue = (NSString *)object->value;
+        g_returnedCStringStorage.emplace_back(stringValue.UTF8String ?: "");
+        result = g_returnedCStringStorage.back().c_str();
+    } else if (object->type == "int64") {
+        NSNumber *numberValue = (NSNumber *)object->value;
+        result = (const char *)(uintptr_t)[numberValue unsignedLongLongValue];
+    }
+
+    delete object;
+    return result;
+}
+
+static void write_replacement_result(ObjcMethodHook *hook, void *ret, const char **parameters, int parameterCount) {
+    const char *returnEncoding = normalized_encoding(hook->signature.getReturnType());
+    if (!returnEncoding || returnEncoding[0] == 0 || returnEncoding[0] == 'v') {
+        call_replacement<uint32_t>(hook, parameters, parameterCount, nullptr);
+        return;
+    }
+
+    switch (returnEncoding[0]) {
+        case 'c': {
+            int32_t value = 0;
+            if (call_replacement<int32_t>(hook, parameters, parameterCount, &value)) {
+                *(char *)ret = (char)value;
+            }
+            return;
+        }
+        case 'C': {
+            uint32_t value = 0;
+            if (call_replacement<uint32_t>(hook, parameters, parameterCount, &value)) {
+                *(unsigned char *)ret = (unsigned char)value;
+            }
+            return;
+        }
+        case 's': {
+            int32_t value = 0;
+            if (call_replacement<int32_t>(hook, parameters, parameterCount, &value)) {
+                *(short *)ret = (short)value;
+            }
+            return;
+        }
+        case 'S': {
+            uint32_t value = 0;
+            if (call_replacement<uint32_t>(hook, parameters, parameterCount, &value)) {
+                *(unsigned short *)ret = (unsigned short)value;
+            }
+            return;
+        }
+        case 'i':
+        case 'I':
+        case 'B': {
+            uint32_t value = 0;
+            if (call_replacement<uint32_t>(hook, parameters, parameterCount, &value)) {
+                *(uint32_t *)ret = value;
+            }
+            return;
+        }
+        case 'l':
+        case 'L':
+        case 'q':
+        case 'Q':
+        case '^': {
+            uint64_t value = 0;
+            if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
+                *(uint64_t *)ret = value;
+            }
+            return;
+        }
+        case '*': {
+            uint64_t value = 0;
+            if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
+                *(const char **)ret = consume_c_string_return_value(value);
+            }
+            return;
+        }
+        case 'f': {
+            float value = 0;
+            if (call_replacement<float>(hook, parameters, parameterCount, &value)) {
+                *(float *)ret = value;
+            }
+            return;
+        }
+        case 'd':
+        case 'F': {
+            double value = 0;
+            if (call_replacement<double>(hook, parameters, parameterCount, &value)) {
+                *(double *)ret = value;
+            }
+            return;
+        }
+        case '@': {
+            uint64_t value = 0;
+            if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
+                __unsafe_unretained id objectValue = consume_objc_return_object(value);
+                *(__unsafe_unretained id *)ret = objectValue;
+            }
+            return;
+        }
+        case '#': {
+            uint64_t value = 0;
+            if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
+                *(Class *)ret = (Class)consume_objc_return_object(value);
+            }
+            return;
+        }
+        case ':': {
+            uint64_t value = 0;
+            if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
+                __unsafe_unretained id selectorObject = consume_objc_return_object(value);
+                *(SEL *)ret = [selectorObject isKindOfClass:[NSString class]] ? NSSelectorFromString(selectorObject) : NULL;
+            }
+            return;
+        }
+        default: {
+            call_replacement<uint32_t>(hook, parameters, parameterCount, nullptr);
+            return;
+        }
+    }
+}
+
 
 WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void * arg) {
     const char *c = encoding;
@@ -57,7 +224,7 @@ WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void 
         }
         case 'I': {
             // &ffi_type_uint;
-            char param = *(char*)arg;
+            unsigned int param = *(unsigned int*)arg;
             result = WAPInternalObject::PlainValue("int32", @(param));
             break;
         }
@@ -122,6 +289,11 @@ WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void 
             result = WAPInternalObject::PlainValue("int64", @(param));
             break;
         }
+        case '*': {
+            const char *param = *(const char **)arg;
+            result = WAPInternalObject::PlainValue("string", param ? [NSString stringWithUTF8String:param] : nil);
+            break;
+        }
         case '@': {
             // &ffi_type_pointer;
             id param = (__bridge id)(*(void**)arg);
@@ -130,14 +302,14 @@ WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void 
         }
         case '#': {
             // &ffi_type_pointer;
-            int64_t param = *(int64_t*)arg;
-            result = WAPInternalObject::PlainValue("int64", @(param));
+            Class param = *(Class*)arg;
+            result = WAPInternalObject::ObjcValue("class", param);
             break;
         }
         case ':': {
             // &ffi_type_pointer;
-            int64_t param = *(int64_t*)arg;
-            result = WAPInternalObject::PlainValue("int64", @(param));
+            SEL param = *(SEL*)arg;
+            result = WAPInternalObject::ObjcValue("selector", NSStringFromSelector(param));
             break;
         }
         case '{': {
@@ -153,7 +325,7 @@ WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void 
     return result;
 }
 
-void binding_objc_method(ObjcMethodHook *hook, id _self, SEL _sel, void* args[]) {
+void binding_objc_method(ObjcMethodHook *hook, id _self, SEL _sel, void *ret, void* args[]) {
     
     ObjcMethodSignature *signature = &(hook->signature);
     
@@ -177,8 +349,7 @@ void binding_objc_method(ObjcMethodHook *hook, id _self, SEL _sel, void* args[])
             NULL
         };
         
-        u32 ret = 0;
-        wap::ObjcRuntime::instance().runtime().call(hook->replacementName.c_str(), parameters, 2, &ret);
+        write_replacement_result(hook, ret, parameters, 2);
         return;
     }
     
@@ -205,8 +376,7 @@ void binding_objc_method(ObjcMethodHook *hook, id _self, SEL _sel, void* args[])
         NULL
     };
 
-    u32 ret = 0;
-    wap::ObjcRuntime::instance().runtime().call(hook->replacementName.c_str(), parameters, 3, &ret);
+    write_replacement_result(hook, ret, parameters, 3);
 }
 
 

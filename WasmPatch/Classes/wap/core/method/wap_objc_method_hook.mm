@@ -22,7 +22,7 @@ void ObjcMethodHook::generalBinding(ffi_cif *cif, void *ret, void* args[],void *
 
 //    NSLog(@"try calling replaced method : self=%@,sel=%@", _self, NSStringFromSelector(_sel));
 
-    binding_objc_method(hook, _self, _sel, args);
+    binding_objc_method(hook, _self, _sel, ret, args);
 }
 
 
@@ -33,6 +33,20 @@ ObjcMethodHook::ObjcMethodHook(const char *className, const char* selName, bool 
     this->isInstance = isInstance;
 }
 
+ObjcMethodHook::~ObjcMethodHook() {
+    if (context.targetClass && context.targetSelector && context.originalImplementation && context.typeEncoding) {
+        class_replaceMethod(context.targetClass, context.targetSelector, context.originalImplementation, context.typeEncoding);
+    }
+    if (context.closure) {
+        ffi_closure_free(context.closure);
+        context.closure = nullptr;
+    }
+    if (context.args) {
+        free(context.args);
+        context.args = nullptr;
+    }
+}
+
 void ObjcMethodHook::hook() {
     Class cls;
     if (isInstance) {
@@ -40,8 +54,15 @@ void ObjcMethodHook::hook() {
     } else {
         cls = objc_getMetaClass(this->className.c_str());
     }
+
+    if (!cls) {
+        printf("WAP Error: no class found for %s\n", this->className.c_str());
+        return;
+    }
     
     SEL sel = sel_registerName(this->selName.c_str());
+    context.targetClass = cls;
+    context.targetSelector = sel;
 
     Method method = class_getInstanceMethod(cls, sel);
     if (!method) {
@@ -50,6 +71,8 @@ void ObjcMethodHook::hook() {
     }
 
     const char * typeEncoding = method_getTypeEncoding(method);
+    context.originalImplementation = method_getImplementation(method);
+    context.typeEncoding = typeEncoding;
 
     context.closure = (ffi_closure *)ffi_closure_alloc(sizeof(ffi_closure), (void**)&context.function_address);
     if (!context.closure) {
@@ -61,14 +84,21 @@ void ObjcMethodHook::hook() {
     context.argCount = signature.getArgumentCount();
     context.returnType = signature.getFFIReturnType();
 
+    if (!context.returnType) {
+        printf("WAP Error: unsupported return type for %s %s\n", this->className.c_str(), this->selName.c_str());
+        return;
+    }
+
     if (ffi_prep_cif(&context.cif, FFI_DEFAULT_ABI, context.argCount,context.returnType, context.args) != FFI_OK) {
         ffi_closure_free(context.closure);
+        context.closure = nullptr;
         return;
     }
 
     // Initialize the closure
     if (ffi_prep_closure_loc(context.closure, &context.cif, generalBinding, this, context.function_address) != FFI_OK) {
         ffi_closure_free(context.closure);
+        context.closure = nullptr;
         return;
     }
 
@@ -81,4 +111,3 @@ void ObjcMethodHook::hook() {
 }
 
 }
-

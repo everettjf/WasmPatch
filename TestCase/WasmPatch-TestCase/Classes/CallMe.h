@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // many arguments
 + (void)callWithManyArguments:(int32_t)p0 p1:(int64_t)p1 p2:(float)p2 p3:(double)p3 p4:(NSString*)p4 p5:(const char*)p5;
++ (const char *)echoCString:(const char *)value;
++ (const char *)staticCString;
 
 // return value
 - (NSString*)returnString;

@@ -13,6 +13,7 @@
 #include "wap_objc_method_hook.h"
 #include <list>
 #include <memory>
+#include <mutex>
 
 namespace wap {
 
@@ -22,9 +23,11 @@ public:
     static ObjcMethod & instance();
     
     void addHook(ObjcMethodHookPtr hook);
+    void clearHooks();
     
 private:
     std::list<ObjcMethodHookPtr> hooks;
+    std::mutex mutex;
 };
 
 }

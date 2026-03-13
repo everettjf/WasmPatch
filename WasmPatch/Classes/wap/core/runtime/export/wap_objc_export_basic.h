@@ -24,6 +24,9 @@ WAPObject alloc_float(float v) { return WAPCreateObjectFromPlainValue("float", @
 WAPObject alloc_double(double v) { return WAPCreateObjectFromPlainValue("double", @(v)); }
 
 WAPObject alloc_string(const char* v) {
+    if (!v) {
+        return WAPCreateObjectFromPlainValue("string", nil);
+    }
     NSString * str = [NSString stringWithUTF8String:v];
     return WAPCreateObjectFromPlainValue("string", str);
 }
@@ -54,6 +57,9 @@ WAPResultVoid dealloc_object(WAPObject a) {
         return 1;
     }
     WAPInternalObject *obj = GetInternalObject(a);
+    if (obj->cate == 'o' && obj->type == "selector") {
+        obj->value = nil;
+    }
     delete obj;
     return 0;
 }

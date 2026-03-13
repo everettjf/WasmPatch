@@ -14,7 +14,7 @@
 
 namespace wap {
 
-void binding_objc_method(ObjcMethodHook *hook, id _self, SEL _sel, void* args[]);
+void binding_objc_method(ObjcMethodHook *hook, id _self, SEL _sel, void *ret, void* args[]);
 
 }
 

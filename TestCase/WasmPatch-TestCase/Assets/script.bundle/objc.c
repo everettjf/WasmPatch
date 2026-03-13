@@ -19,6 +19,46 @@ int my_instance_ReplaceMe_requestfromto(WAPObject self, const char * cmd, WAPArr
     return 0;
 }
 
+WAPObject my_class_ReplaceMe_classtoken(WAPObject self, const char * cmd) {
+    return new_objc_nsstring("replaced-class-token");
+}
+
+int my_class_ReplaceMe_classmagicnumber(WAPObject self, const char * cmd) {
+    return 42;
+}
+
+int my_class_ReplaceMe_classfeatureenabled(WAPObject self, const char * cmd) {
+    return 1;
+}
+
+double my_class_ReplaceMe_classscore(WAPObject self, const char * cmd) {
+    return 9.5;
+}
+
+WAPObject my_class_ReplaceMe_classcstring(WAPObject self, const char * cmd) {
+    return alloc_string("replaced-class-c-string");
+}
+
+WAPObject my_instance_ReplaceMe_instancetoken(WAPObject self, const char * cmd) {
+    return new_objc_nsstring("replaced-instance-token");
+}
+
+int my_instance_ReplaceMe_instancemagicnumber(WAPObject self, const char * cmd) {
+    return 43;
+}
+
+int my_instance_ReplaceMe_instancefeatureenabled(WAPObject self, const char * cmd) {
+    return 1;
+}
+
+double my_instance_ReplaceMe_instancescore(WAPObject self, const char * cmd) {
+    return 8.75;
+}
+
+WAPObject my_instance_ReplaceMe_instancecstring(WAPObject self, const char * cmd) {
+    return alloc_string("replaced-instance-c-string");
+}
+
 int entry() {
     // method call - class method
     call_class_method_0("CallMe", "sayHi");
@@ -55,9 +95,19 @@ int entry() {
     // method replace
     replace_class_method("ReplaceMe", "request", "my_class_ReplaceMe_request");
     replace_class_method("ReplaceMe", "requestFrom:to:", "my_class_ReplaceMe_requestfromto");
+    replace_class_method("ReplaceMe", "classToken", "my_class_ReplaceMe_classtoken");
+    replace_class_method("ReplaceMe", "classMagicNumber", "my_class_ReplaceMe_classmagicnumber");
+    replace_class_method("ReplaceMe", "classFeatureEnabled", "my_class_ReplaceMe_classfeatureenabled");
+    replace_class_method("ReplaceMe", "classScore", "my_class_ReplaceMe_classscore");
+    replace_class_method("ReplaceMe", "classCString", "my_class_ReplaceMe_classcstring");
 
     replace_instance_method("ReplaceMe", "request", "my_instance_ReplaceMe_request");
     replace_instance_method("ReplaceMe", "requestFrom:to:", "my_instance_ReplaceMe_requestfromto");
+    replace_instance_method("ReplaceMe", "instanceToken", "my_instance_ReplaceMe_instancetoken");
+    replace_instance_method("ReplaceMe", "instanceMagicNumber", "my_instance_ReplaceMe_instancemagicnumber");
+    replace_instance_method("ReplaceMe", "instanceFeatureEnabled", "my_instance_ReplaceMe_instancefeatureenabled");
+    replace_instance_method("ReplaceMe", "instanceScore", "my_instance_ReplaceMe_instancescore");
+    replace_instance_method("ReplaceMe", "instanceCString", "my_instance_ReplaceMe_instancecstring");
 
 
     // other
@@ -85,6 +135,17 @@ int entry() {
     append_array(params, alloc_string("WebAssembly"));
     call_class_method_param("CallMe", "callWithManyArguments:p1:p2:p3:p4:p5:", params);
     dealloc_array(params);
+
+    // const char * parameter and return value
+    WAPObject cstring = alloc_string("hello-c-string");
+    WAPObject echoResult = call_class_method_1("CallMe", "echoCString:", cstring);
+    print_object(echoResult);
+    dealloc_object(echoResult);
+    dealloc_object(cstring);
+
+    WAPObject staticCString = call_class_method_0("CallMe", "staticCString");
+    print_object(staticCString);
+    dealloc_object(staticCString);
 
     // result
     WAPObject c = alloc_objc_class("CallMe");

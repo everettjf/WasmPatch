@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pod-lint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install CocoaPods
+        run: gem install cocoapods
+      - name: Validate Podspec
+        run: pod lib lint WasmPatch.podspec --allow-warnings
+
+  wasm-fixtures:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install LLVM and wabt
+        run: brew install llvm wabt
+      - name: Build wasm testcase fixtures
+        run: |
+          export PATH="$(brew --prefix llvm)/bin:$PATH"
+          cd TestCase
+          sh compile-testcase.sh

@@ -10,24 +10,49 @@
 #define wap_objc_runtime_hpp
 
 #include "../../core/util/wap_wasm.hpp"
+#include <memory>
+#include <mutex>
+#include <string>
 
 namespace wap {
+
+struct LoadOptions {
+    size_t maxBytes = 0;
+    std::string expectedSHA256Hex;
+    bool allowReload = false;
+    bool resetBeforeLoad = false;
+};
 
 class ObjcRuntime {
 public:
     static ObjcRuntime & instance();
     
     bool load(const std::string & path);
+    bool load(const std::string & path, const LoadOptions & options);
+    bool loadData(const void * bytes, size_t size);
+    bool loadData(const void * bytes, size_t size, const LoadOptions & options);
+    void reset();
+    bool isLoaded() const;
+    const std::string & lastError() const;
     
-    WasmRuntime & runtime() { return _runtime; }
+    WasmRuntime & runtime();
     
 private:
     void initRuntime();
+    bool loadBufferLocked(const void * bytes, size_t size);
+    bool validateLoadLocked(const std::string & sourceLabel, const void * bytes, size_t size, const LoadOptions & options);
+    void resetLocked();
+    void setError(const std::string & error);
+    void clearError();
+    void ensureRuntime();
     
     ObjcRuntime() {} // disable new instance
     
 private:
-    WasmRuntime _runtime;
+    mutable std::mutex _mutex;
+    std::unique_ptr<WasmRuntime> _runtime;
+    bool _loaded = false;
+    std::string _lastError;
 };
 
 }

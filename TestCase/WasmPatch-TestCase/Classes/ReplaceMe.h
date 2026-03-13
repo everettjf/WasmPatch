@@ -13,9 +13,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)request;
 + (void)requestFrom:(NSString*)from to:(NSString*)to;
++ (NSString *)classToken;
++ (int32_t)classMagicNumber;
++ (BOOL)classFeatureEnabled;
++ (double)classScore;
++ (const char *)classCString;
 
 - (void)request;
 - (void)requestFrom:(NSString*)from to:(NSString*)to;
+- (NSString *)instanceToken;
+- (int32_t)instanceMagicNumber;
+- (BOOL)instanceFeatureEnabled;
+- (double)instanceScore;
+- (const char *)instanceCString;
 
 @end
 

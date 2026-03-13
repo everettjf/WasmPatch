@@ -47,6 +47,7 @@ ffi_type* ObjcMethodSignature::ffitypeFromTypeEncoding(const char *encoding) {
             return &ffi_type_double;
         case 'B':
             return &ffi_type_uint8;
+        case '*':
         case '^':
             return &ffi_type_pointer;
         case '@':
@@ -172,4 +173,3 @@ ffi_type ** ObjcMethodSignature::mallocFFIArgumentTypes() {
 }
 
 }
-

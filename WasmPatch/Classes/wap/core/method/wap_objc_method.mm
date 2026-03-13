@@ -16,8 +16,14 @@ ObjcMethod & ObjcMethod::instance() {
 }
 
 void ObjcMethod::addHook(ObjcMethodHookPtr hook) {
+    std::lock_guard<std::mutex> lock(mutex);
     hook->hook();
     hooks.push_back(hook);
+}
+
+void ObjcMethod::clearHooks() {
+    std::lock_guard<std::mutex> lock(mutex);
+    hooks.clear();
 }
 
 }

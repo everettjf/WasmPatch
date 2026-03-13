@@ -7,13 +7,13 @@
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 [![Issues](https://img.shields.io/github/issues-raw/everettjf/WasmPatch?style=flat-square&color=success)](https://github.com/everettjf/WasmPatch/issues)
 
-**Yet Another Patch Module for iOS/macOS via WebAssembly**
+**WebAssembly-driven hot patching for iOS/macOS Objective-C apps**
 
-[English](README.md) | [中文](README_CN.md)
+[English](README.md)
 
 </div>
 
-> 💡 *Hot-fix iOS/macOS apps using WebAssembly payloads. Compile C code to WASM and replace Objective-C methods on the fly.*
+> Hot-fix iOS/macOS apps using WebAssembly payloads. Compile C code to WASM and replace Objective-C methods at runtime.
 
 ---
 
@@ -38,7 +38,8 @@ This gives apps the ability to:
 | 🔗 **Objective-C Bridge** | Call any Obj-C class or method from WebAssembly |
 | 🔄 **Method Replacement** | Hot-fix by replacing Obj-C methods at runtime |
 | 🍎 **Cross-Platform** | Works on both iOS and macOS |
-| 🛠️ **Complete Tooling** | Ready-to-use scripts and sample projects |
+| 🛠️ **Runtime Diagnostics** | Load state, reset hooks, and inspect last runtime error |
+| 🧪 **Regression Assets** | Test case bundle and fixture hosts for bridge validation |
 
 ---
 
@@ -88,7 +89,7 @@ cd WasmPatch
 
 ```bash
 # Use the provided tool
-sh Tool/c2wasm.sh your_patch.c -o your_patch.wasm
+sh Tool/c2wasm.sh your_patch.c your_patch.wasm
 ```
 
 ### 3. Load in Your App
@@ -98,11 +99,13 @@ sh Tool/c2wasm.sh your_patch.c -o your_patch.wasm
 #import <WasmPatch/WasmPatch.h>
 
 // Load the WebAssembly module
-BOOL success = [WasmPatch loadModuleFromPath:@"your_patch.wasm"];
+BOOL success = wap_load_file("your_patch.wasm");
 
-// Apply patches
+// Inspect failures when loading does not succeed
 if (success) {
-    [WasmPatch applyAllPatches];
+    NSLog(@"loaded");
+} else {
+    NSLog(@"load failed: %s", wap_last_error());
 }
 ```
 
@@ -113,15 +116,15 @@ if (success) {
 ```
 WasmPatch/
 ├── WasmPatch/              # Core framework
-│   ├── WasmPatch.h         # Main header
-│   ├── WasmRuntime.m       # WASM runtime
-│   └── WasmBridge.m        # Obj-C bridge
+│   ├── WasmPatch.h         # Public C API
+│   ├── core/runtime/       # WASM runtime and exports
+│   └── core/method/        # Obj-C method bridge and hooks
 ├── Tool/                   # Build tools
 │   ├── c2wasm.sh           # C to WASM compiler
 │   └── install-llvm.sh     # LLVM installer
 ├── TestCase/               # Test cases
 │   ├── compile-testcase.sh # Test compiler
-│   └── wasm-test/          # Sample patches
+│   └── WasmPatch-TestCase/ # Sample host classes and wasm fixtures
 ├── Image/                  # Documentation images
 ├── Demo/                   # Demo projects
 │   ├── iOS/               # iOS demo
@@ -133,17 +136,14 @@ WasmPatch/
 
 ## 💻 Examples
 
-### Basic Method Replacement
+### Public Runtime API
 
-```c
-// my_patch.c
-#include <wasmpatch.h>
-
-// Hook a method and replace it
-void hook_UIViewController_viewDidLoad() {
-    NSLog(@"WasmPatch: viewDidLoad called!");
-    // Your custom logic here
-}
+```objc
+bool wap_load_file(const char * path);
+bool wap_load_data(const void * bytes, unsigned int size);
+void wap_reset_runtime(void);
+bool wap_runtime_is_loaded(void);
+const char * wap_last_error(void);
 ```
 
 ### Call Objective-C from WASM
@@ -152,13 +152,13 @@ void hook_UIViewController_viewDidLoad() {
 // advanced_patch.c
 #include <wasmpatch.h>
 
-void patch_network_request() {
-    // Call any Objective-C method
-    call_class_method("NetworkManager", "logRequest:", @"WasmPatch detected request");
-    
-    // Replace the implementation
-    replace_method("NetworkManager", "sendRequest:",
-                  (IMP)wasm_custom_send_request, NULL);
+int entry() {
+    WAPObject message = new_objc_nsstring("WasmPatch detected request");
+    call_class_method_1("NetworkManager", "logRequest:", message);
+    dealloc_object(message);
+
+    replace_instance_method("NetworkManager", "sendRequest:", "wasm_custom_send_request");
+    return 0;
 }
 ```
 
@@ -172,8 +172,8 @@ void patch_network_request() {
 |-------------|---------|-------------|
 | **macOS** | 10.14+ | Development environment |
 | **Xcode** | 11+ | iOS/macOS SDK |
-| **LLVM/Clang** | 7.0+ | C to WASM compilation |
-| **wasm2wat** | - | WASM tooling |
+| **LLVM/Clang** | 14+ | C to WASM compilation |
+| **wabt** | latest | `wasm2wat` tooling |
 
 ### Build
 
@@ -195,7 +195,7 @@ xcodebuild -project WasmPatch.xcodeproj \
 ### Test
 
 ```bash
-# Run test cases
+# Compile testcase wasm fixtures
 cd TestCase
 sh compile-testcase.sh
 
@@ -219,10 +219,9 @@ wasm2wat your_patch.wasm -o your_patch.wat
 
 | Test Case | Description |
 |-----------|-------------|
-| `wasm-basic` | Basic WASM loading |
-| `objc-bridge` | Objective-C method calls |
-| `method-replace` | Method replacement |
-| `memory-management` | Memory safety |
+| `objc.c` | Objective-C bridge coverage and method replacement fixture |
+| `CallMe` | Host methods for bridge argument/result validation |
+| `ReplaceMe` | Host methods used for runtime replacement verification |
 
 Run all tests:
 ```bash
@@ -234,9 +233,13 @@ sh TestCase/compile-testcase.sh
 ## 📚 Documentation
 
 - [Architecture Overview](#-how-it-works)
-- [API Reference](#-examples)
+- [API Reference](#public-runtime-api)
 - [Tooling Guide](#-development)
-- [Chinese Guide](http://weixin.qq.com/r/xxxxxxxx) - 微信文章
+
+## Current Maturity
+
+- Stronger than the original prototype on diagnostics, reset safety, and scripting.
+- Still behind best-in-class hotfix platforms on sandboxing, signature coverage, ABI compatibility testing, and release automation.
 
 ---
 

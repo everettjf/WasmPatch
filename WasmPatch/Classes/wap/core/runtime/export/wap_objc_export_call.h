@@ -13,12 +13,20 @@
 
 
 WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelectorName selector_name, WAPObject params_addr) {
+    if (!selector_name) {
+        std::cout << "selector name can not be null" << std::endl;
+        return 0;
+    }
     
     WAPClassName class_name = nullptr;
     WAPInternalObject * instance = nullptr;
     if (is_instance) {
         // call instance method
         instance = GetInternalObject(address);
+        if (!instance || !instance->value) {
+            std::cout << "instance can not be null" << std::endl;
+            return 0;
+        }
         class_name = object_getClassName(instance->value);
     } else {
         // call class method
@@ -27,6 +35,10 @@ WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelect
     
     
     Class cls = objc_getClass(class_name);
+    if (!cls) {
+        std::cout << "class not found: " << class_name << std::endl;
+        return 0;
+    }
     SEL sel = sel_registerName(selector_name);
     
     NSMethodSignature *methodSignature;
@@ -41,6 +53,11 @@ WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelect
         invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
         [invocation setTarget:cls];
         
+    }
+
+    if (!methodSignature) {
+        std::cout << "method signature not found for selector: " << selector_name << std::endl;
+        return 0;
     }
     
     [invocation setSelector:sel];
@@ -68,6 +85,10 @@ WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelect
         auto inputParamAddr = inputArguments->items[paramIndex - 2];
         
         WAPInternalObject *inputParam = GetInternalObject(inputParamAddr);
+        if (!inputParam) {
+            std::cout << "input argument is null" << std::endl;
+            return 0;
+        }
         
         if (inputParam->cate == 'p') {
             std::string objectType = inputParam->type;
@@ -133,12 +154,25 @@ break; \
                     break;
                 }
                 case '*':
+                    if (inputParam->cate == 'p' && inputParam->type == "string") {
+                        NSString *obj = (NSString *)inputParam->value;
+                        const char *value = obj.UTF8String;
+                        [invocation setArgument:&value atIndex:paramIndex];
+                        break;
+                    }
+                    // fall through
                 case '^': {
-                    // todo
+                    if (inputParam->cate == 'p' && inputParam->type == "int64") {
+                        NSNumber *obj = (NSNumber *)inputParam->value;
+                        void *value = (void *)(uintptr_t)[obj unsignedLongLongValue];
+                        [invocation setArgument:&value atIndex:paramIndex];
+                        break;
+                    }
                     break;
                 }
                 case '#': {
-                    // todo
+                    Class value = (Class)inputParam->value;
+                    [invocation setArgument:&value atIndex:paramIndex];
                     break;
                 }
                 default: {
@@ -177,7 +211,7 @@ break; \
             
             return WAPCreateObjectFromObjcValue("objc",returnValue);
         } else {
-            WAPInternalObjectType internalObjectType;
+            WAPInternalObjectType internalObjectType = "objc";
             switch (returnType[0] == 'r' ? returnType[1] : returnType[0]) {
 #define WAP_CALL_RET_CASE(typeChar, objectType, realType) \
 case typeChar: {                              \
@@ -207,12 +241,21 @@ break; \
                     break;
                 }
                 case '*':
+                {
+                    const char *tempResultSet = nullptr;
+                    [invocation getReturnValue:&tempResultSet];
+                    return tempResultSet ? WAPCreateObjectFromPlainValue("string", [NSString stringWithUTF8String:tempResultSet]) : 0;
+                }
                 case '^': {
-                    // todo
+                    void *tempResultSet = nullptr;
+                    [invocation getReturnValue:&tempResultSet];
+                    return WAPCreateObjectFromPlainValue("int64", @((uint64_t)(uintptr_t)tempResultSet));
                     break;
                 }
                 case '#': {
-                    // todo
+                    Class tempResultSet = Nil;
+                    [invocation getReturnValue:&tempResultSet];
+                    return WAPCreateObjectFromObjcValue("class", tempResultSet);
                     break;
                 }
                 default: {
@@ -220,7 +263,7 @@ break; \
                     break;
                 }
             }
-            return WAPCreateObjectFromObjcValue(internalObjectType, returnValue);
+            return WAPCreateObjectFromPlainValue(internalObjectType, returnValue);
         }
     }
     

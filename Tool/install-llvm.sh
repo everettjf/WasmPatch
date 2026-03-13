@@ -1,5 +1,18 @@
+#!/usr/bin/env bash
 
-brew install llvm
-brew link --force llvm
+set -euo pipefail
 
+brew install llvm wabt
+
+LLVM_PREFIX="$(brew --prefix llvm)"
+
+cat <<EOF
+LLVM installed.
+
+Recommended shell setup:
+  export PATH="$LLVM_PREFIX/bin:\$PATH"
+
+You can now run:
+  sh Tool/c2wasm.sh input.c output.wasm
+EOF
 
