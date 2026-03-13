@@ -26,7 +26,7 @@ Pod::Spec.new do |spec|
 
   spec.source_files  = "WasmPatch/Classes/**/*"
   spec.exclude_files = "WasmPatch/Classes/**/*.txt", "WasmPatch/Classes/**/CMakeLists.txt"
-  spec.public_header_files = "WasmPatch/Classes/WasmPatch.h"
+  spec.public_header_files = "WasmPatch/Classes/*.h"
 
   spec.library = 'c++'
   spec.xcconfig = {

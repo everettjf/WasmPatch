@@ -88,20 +88,39 @@ cd WasmPatch
 ### 2. Compile a Patch
 
 ```bash
-# Use the provided tool
-sh Tool/c2wasm.sh your_patch.c your_patch.wasm
+# Simplest entry point
+sh Tool/build-patch.sh your_patch.c
+
+# Optional explicit output path
+sh Tool/build-patch.sh your_patch.c build/your_patch.wasm
 ```
 
 ### 3. Load in Your App
 
 ```objc
-# Import WasmPatch
+#import <WasmPatch/WAPPatchLoader.h>
+
+NSError *error = nil;
+WAPPatchLoaderOptions *options = [WAPPatchLoader recommendedOptions];
+options.expectedSHA256Hex = @"<optional sha256>";
+
+BOOL success = [WAPPatchLoader loadPatchNamed:@"your_patch"
+                                     inBundle:NSBundle.mainBundle
+                                      options:options
+                                        error:&error];
+
+if (!success) {
+    NSLog(@"load failed: %@", error.localizedDescription);
+    NSLog(@"runtime detail: %@", error.userInfo[WAPPatchLoaderRuntimeMessageKey]);
+}
+```
+
+Low-level C API is still available when you need it:
+
+```objc
 #import <WasmPatch/WasmPatch.h>
 
-// Load the WebAssembly module
 BOOL success = wap_load_file("your_patch.wasm");
-
-// Inspect failures when loading does not succeed
 if (success) {
     NSLog(@"loaded");
 } else {
@@ -144,6 +163,28 @@ bool wap_load_data(const void * bytes, unsigned int size);
 void wap_reset_runtime(void);
 bool wap_runtime_is_loaded(void);
 const char * wap_last_error(void);
+```
+
+### High-Level Objective-C API
+
+```objc
+NSError *error = nil;
+WAPPatchLoaderOptions *options = [WAPPatchLoader recommendedOptions];
+options.allowReload = YES;
+options.resetBeforeLoad = YES;
+
+[WAPPatchLoader loadPatchAtPath:path options:options error:&error];
+[WAPPatchLoader loadPatchNamed:@"objc" inBundle:bundle options:options error:&error];
+[WAPPatchLoader loadPatchData:data options:options error:&error];
+[WAPPatchLoader reset];
+```
+
+Error handling:
+
+```objc
+if (error.code == WAPPatchLoaderErrorCodeSHA256Mismatch) {
+    NSLog(@"patch tampered: %@", error.userInfo[WAPPatchLoaderRuntimeMessageKey]);
+}
 ```
 
 ### Call Objective-C from WASM
@@ -199,6 +240,9 @@ xcodebuild -project WasmPatch.xcodeproj \
 cd TestCase
 sh compile-testcase.sh
 
+# Compile your own patch with defaults
+sh Tool/build-patch.sh path/to/patch.c
+
 # Verify wasm modules
 wasm2wat your_patch.wasm -o your_patch.wat
 ```
@@ -252,6 +296,15 @@ sh TestCase/compile-testcase.sh
 
 - Stronger than the original prototype on diagnostics, reset safety, and scripting.
 - Still behind best-in-class hotfix platforms on sandboxing, signature coverage, ABI compatibility testing, and release automation.
+
+## Release Checklist
+
+```bash
+sh Tool/build-patch.sh your_patch.c
+sh Tool/validate-production.sh
+```
+
+If both pass, the current repo state is ready for internal release and integration validation.
 
 ---
 

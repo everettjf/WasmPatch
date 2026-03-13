@@ -6,7 +6,7 @@
 //
 
 #import "TestRunner.h"
-#import <WasmPatch/WasmPatch.h>
+#import <WasmPatch/WAPPatchLoader.h>
 #import "ReplaceMe.h"
 #include <math.h>
 
@@ -18,9 +18,11 @@
 
 + (BOOL)runValidation:(NSString*)scriptBundlePath errorMessage:(NSString * _Nullable * _Nullable)errorMessage {
     NSString *scriptPath = [scriptBundlePath stringByAppendingPathComponent:@"objc.wasm"];
-    bool result = wap_load_file(scriptPath.UTF8String);
+    WAPPatchLoaderOptions *options = [WAPPatchLoader recommendedOptions];
+    NSError *loadError = nil;
+    bool result = [WAPPatchLoader loadPatchAtPath:scriptPath options:options error:&loadError];
     if (!result) {
-        NSString *message = [NSString stringWithFormat:@"failed load file %@ error=%s", scriptPath, wap_last_error()];
+        NSString *message = [NSString stringWithFormat:@"failed load file %@ error=%@", scriptPath, loadError.localizedDescription ?: @"unknown"];
         NSLog(@"%@", message);
         if (errorMessage) {
             *errorMessage = message;
@@ -56,7 +58,7 @@
         } \
     } while (0)
 
-    WAP_ASSERT(wap_runtime_is_loaded(), @"runtime should be loaded");
+    WAP_ASSERT([WAPPatchLoader isLoaded], @"runtime should be loaded");
     WAP_ASSERT([[ReplaceMe classToken] isEqualToString:@"replaced-class-token"], @"classToken mismatch");
     WAP_ASSERT([ReplaceMe classMagicNumber] == 42, @"classMagicNumber mismatch");
     WAP_ASSERT([ReplaceMe classFeatureEnabled] == YES, @"classFeatureEnabled mismatch");
