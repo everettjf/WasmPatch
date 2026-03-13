@@ -15,6 +15,9 @@ ffi_type* ObjcMethodSignature::ffitypeFromTypeEncoding(const char *encoding) {
     if (c == NULL) {
         return NULL;
     }
+    if (c[0] == 'r' && c[1] != 0) {
+        c += 1;
+    }
     
     switch (c[0]) {
         case 'v':
@@ -127,7 +130,10 @@ void ObjcMethodSignature::parse(const char * encoding) {
         }
         
         if (arg.empty()) {
-            if (c == '^') {
+            if (c == 'r' && (i + 1) < typeEncoding.size()) {
+                skipNext = YES;
+                arg = typeEncoding.substr(i, 2);
+            } else if (c == '^') {
                 skipNext = YES;
                 arg = typeEncoding.substr(i,2);
             } else if (c == '?') {

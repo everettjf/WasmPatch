@@ -203,6 +203,18 @@ sh compile-testcase.sh
 wasm2wat your_patch.wasm -o your_patch.wat
 ```
 
+Production validation:
+
+```bash
+sh Tool/validate-production.sh
+```
+
+macOS host validation only:
+
+```bash
+sh Tool/run-macos-validation.sh
+```
+
 ---
 
 ## 📱 Platform Support

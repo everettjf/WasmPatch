@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface TestRunner : NSObject
 
 + (void)runTest:(NSString*)scriptBundlePath;
++ (BOOL)runValidation:(NSString*)scriptBundlePath errorMessage:(NSString * _Nullable * _Nullable)errorMessage;
 
 @end
 

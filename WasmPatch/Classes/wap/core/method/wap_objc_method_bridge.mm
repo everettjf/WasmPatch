@@ -9,6 +9,9 @@
 #include "wap_objc_method_bridge.h"
 #include "wap_objc_define.h"
 #include "../runtime/wap_objc_runtime.h"
+#include <CoreFoundation/CoreFoundation.h>
+
+extern "C" id objc_autoreleaseReturnValue(id obj);
 
 namespace wap {
 
@@ -26,17 +29,32 @@ static const char * normalized_encoding(const std::string & encoding) {
     return encoding[0] == 'r' && encoding.size() > 1 ? encoding.c_str() + 1 : encoding.c_str();
 }
 
-static id consume_objc_return_object(uint64_t rawValue) {
+static CFTypeRef consume_objc_return_object_ref(uint64_t rawValue) {
     if (rawValue == 0) {
-        return nil;
+        return nullptr;
     }
 
     WAPInternalObject *object = GetInternalObject((WAPObject)rawValue);
     if (!object) {
-        return nil;
+        return nullptr;
     }
 
-    id value = object->value;
+    CFTypeRef value = object->value ? CFRetain((__bridge CFTypeRef)object->value) : nullptr;
+    delete object;
+    return value;
+}
+
+static Class consume_objc_return_class(uint64_t rawValue) {
+    if (rawValue == 0) {
+        return Nil;
+    }
+
+    WAPInternalObject *object = GetInternalObject((WAPObject)rawValue);
+    if (!object) {
+        return Nil;
+    }
+
+    Class value = (Class)object->value;
     delete object;
     return value;
 }
@@ -152,22 +170,22 @@ static void write_replacement_result(ObjcMethodHook *hook, void *ret, const char
         case '@': {
             uint64_t value = 0;
             if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
-                __unsafe_unretained id objectValue = consume_objc_return_object(value);
-                *(__unsafe_unretained id *)ret = objectValue;
+                CFTypeRef objectValueRef = consume_objc_return_object_ref(value);
+                *(void **)ret = (__bridge void *)objc_autoreleaseReturnValue((__bridge id)objectValueRef);
             }
             return;
         }
         case '#': {
             uint64_t value = 0;
             if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
-                *(Class *)ret = (Class)consume_objc_return_object(value);
+                *(void **)ret = (__bridge void *)consume_objc_return_class(value);
             }
             return;
         }
         case ':': {
             uint64_t value = 0;
             if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value)) {
-                __unsafe_unretained id selectorObject = consume_objc_return_object(value);
+                id selectorObject = (__bridge_transfer id)consume_objc_return_object_ref(value);
                 *(SEL *)ret = [selectorObject isKindOfClass:[NSString class]] ? NSSelectorFromString(selectorObject) : NULL;
             }
             return;
@@ -182,6 +200,9 @@ static void write_replacement_result(ObjcMethodHook *hook, void *ret, const char
 
 WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void * arg) {
     const char *c = encoding;
+    if (c && c[0] == 'r' && c[1] != 0) {
+        c += 1;
+    }
     
     WAPInternalObject *result = nullptr;
     

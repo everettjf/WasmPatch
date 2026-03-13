@@ -20,6 +20,17 @@
     
     NSString *testCaseBundlePath = [[NSBundle mainBundle] pathForResource:@"WasmPatch-TestCase" ofType:@"bundle"];
     NSString *scriptBundlePath = [testCaseBundlePath stringByAppendingPathComponent:@"Contents/Resources/script.bundle"];
+    NSString *autotest = NSProcessInfo.processInfo.environment[@"WASMPATCH_AUTOTEST"];
+    if ([autotest isEqualToString:@"1"]) {
+        NSString *message = nil;
+        BOOL ok = [TestRunner runValidation:scriptBundlePath errorMessage:&message];
+        fprintf(stderr, "%s\n", ok ? "WASMPATCH_AUTOTEST_PASS" : "WASMPATCH_AUTOTEST_FAIL");
+        if (!ok && message.length > 0) {
+            fprintf(stderr, "%s\n", message.UTF8String);
+        }
+        fflush(stderr);
+        exit(ok ? 0 : 1);
+    }
     [TestRunner runTest:scriptBundlePath];
     
 }
