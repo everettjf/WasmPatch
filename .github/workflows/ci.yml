@@ -18,10 +18,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install LLVM and wabt
-        run: brew install llvm wabt
+      - name: Install LLVM, lld, and wabt
+        run: brew install llvm lld wabt
       - name: Build wasm testcase fixtures
         run: |
-          export PATH="$(brew --prefix llvm)/bin:$PATH"
+          export PATH="$(brew --prefix llvm)/bin:$(brew --prefix lld)/bin:$PATH"
           cd TestCase
           sh compile-testcase.sh
