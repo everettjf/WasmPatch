@@ -193,15 +193,15 @@ static void write_replacement_result(ObjcMethodHook *hook, void *ret, const char
         }
         case '{': {
             StructKind kind = StructKindFromEncoding(returnEncoding);
-            if (kind == StructKind::None) {
-                call_replacement<uint32_t>(hook, parameters, parameterCount, nullptr);
-                return;
-            }
             uint64_t value = 0;
             if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value) && value != 0) {
                 WAPInternalObject *object = GetInternalObject((WAPObject)value);
                 if (object) {
-                    StructUnwrapBytes(kind, object->value, ret);
+                    if (kind != StructKind::None) {
+                        StructUnwrapBytes(kind, object->value, ret);
+                    } else {
+                        GenericUnwrapBytes(object->value, ret, GenericEncodingSize(returnEncoding));
+                    }
                     delete object;
                 }
             }
@@ -352,13 +352,20 @@ WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void 
         }
         case '{': {
             // libffi hands struct arguments to the closure as a pointer to the
-            // live struct value. Wrap the bytes in an NSValue so the patch can
-            // read fields back with the cg*_get_* accessors.
+            // live struct value. Geometry structs round-trip as NSValue (so the
+            // cg*_get_* accessors work); any other struct round-trips as raw
+            // bytes tagged "struct:<encoding>" for field-by-offset access.
             StructKind kind = StructKindFromEncoding(c);
             if (kind != StructKind::None && arg) {
                 NSValue *boxed = StructWrapBytes(kind, arg);
                 if (boxed) {
                     result = WAPInternalObject::ObjcValue(StructTypeTag(kind), boxed);
+                }
+            } else if (arg) {
+                size_t size = GenericEncodingSize(c);
+                NSData *boxed = GenericWrapBytes(arg, size);
+                if (boxed) {
+                    result = WAPInternalObject::ObjcValue(GenericStructTag(c), boxed);
                 }
             }
             break;

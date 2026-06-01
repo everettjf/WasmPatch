@@ -78,6 +78,25 @@ extern double cgrect_get_width(WAPObject rect);
 extern double cgrect_get_height(WAPObject rect);
 
 // ---------------------------------------------------------------------------
+// Generic structs (arbitrary by-value structs beyond the geometry helpers)
+//   Build one with alloc_struct(encoding) and read/write fields by byte offset
+//   (you know your own struct's layout). Example for `struct { int a; double b; }`:
+//   "{S=id}" -> field a at offset 0, field b at offset 8.
+// ---------------------------------------------------------------------------
+
+extern WAPObject alloc_struct(const char * objc_type_encoding);
+
+extern int32_t struct_get_int32(WAPObject s, int offset);
+extern int64_t struct_get_int64(WAPObject s, int offset);
+extern float   struct_get_float(WAPObject s, int offset);
+extern double  struct_get_double(WAPObject s, int offset);
+
+extern WAPResultVoid struct_set_int32(WAPObject s, int offset, int32_t value);
+extern WAPResultVoid struct_set_int64(WAPObject s, int offset, int64_t value);
+extern WAPResultVoid struct_set_float(WAPObject s, int offset, float value);
+extern WAPResultVoid struct_set_double(WAPObject s, int offset, double value);
+
+// ---------------------------------------------------------------------------
 // Method calls
 // ---------------------------------------------------------------------------
 

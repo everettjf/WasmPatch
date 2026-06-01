@@ -93,6 +93,28 @@ WAPObject my_created_block(WAPArray args) {
     return 0;
 }
 
+// Generic struct WAPTriple { int32_t a; double b; int64_t c; }
+// Layout: a @ offset 0, b @ offset 8, c @ offset 16 (size 24).
+#define WAP_TRIPLE_ENCODING "{WAPTriple=idq}"
+
+// generic struct argument: read fields by offset and return their sum
+int64_t my_instance_ReplaceMe_sumtriple(WAPObject self, const char * cmd, WAPArray args) {
+    WAPObject t = get_array_item(args, 0);
+    int32_t a = struct_get_int32(t, 0);
+    double  b = struct_get_double(t, 8);
+    int64_t c = struct_get_int64(t, 16);
+    return (int64_t)a + (int64_t)b + c;
+}
+
+// generic struct return: build a WAPTriple and hand it back by value
+WAPObject my_class_ReplaceMe_buildtriple(WAPObject self, const char * cmd) {
+    WAPObject t = alloc_struct(WAP_TRIPLE_ENCODING);
+    struct_set_int32(t, 0, 7);
+    struct_set_double(t, 8, 2.5);
+    struct_set_int64(t, 16, 100);
+    return t;
+}
+
 int entry() {
     // method call - class method
     call_class_method_0("CallMe", "sayHi");
@@ -135,6 +157,8 @@ int entry() {
     WAP_REPLACE_INSTANCE(ReplaceMe, "instanceCString", my_instance_ReplaceMe_instancecstring);
     WAP_REPLACE_INSTANCE(ReplaceMe, "sumOfRect:", my_instance_ReplaceMe_sumofrect);
     WAP_REPLACE_INSTANCE(ReplaceMe, "fetchWithCompletion:", my_instance_ReplaceMe_fetch);
+    WAP_REPLACE_INSTANCE(ReplaceMe, "sumTriple:", my_instance_ReplaceMe_sumtriple);
+    WAP_REPLACE_CLASS(ReplaceMe, "buildTriple", my_class_ReplaceMe_buildtriple);
 
     // struct round-trip: build a CGRect, send it through an Obj-C method that
     // returns a CGRect, then forward the doubled fields back via a 4-arg call.

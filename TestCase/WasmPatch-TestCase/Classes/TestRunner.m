@@ -178,6 +178,16 @@
     NSLog(@"+ CallMe recordedBlockResult => %@", [CallMe recordedBlockResult]);
     WAP_ASSERT([[CallMe recordedBlockResult] isEqualToString:@"created-in-wasm"], @"wasm-created block mismatch");
 
+    // generic struct argument: WAPTriple{10, 2.5, 100} -> 10 + 2 + 100 = 112
+    int64_t tripleSum = [rm sumTriple:(WAPTriple){10, 2.5, 100}];
+    NSLog(@"- ReplaceMe sumTriple => %lld", tripleSum);
+    WAP_ASSERT(tripleSum == 112, @"generic struct argument mismatch");
+
+    // generic struct return: the patch builds WAPTriple{7, 2.5, 100}
+    WAPTriple built = [ReplaceMe buildTriple];
+    NSLog(@"+ ReplaceMe buildTriple => {%d, %.2f, %lld}", built.a, built.b, built.c);
+    WAP_ASSERT(built.a == 7 && fabs(built.b - 2.5) < 0.001 && built.c == 100, @"generic struct return mismatch");
+
 #undef WAP_ASSERT
 
     if (!passed) {
