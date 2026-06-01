@@ -13,16 +13,18 @@ publish it; pick one.
 ## Approach 1 — GitHub Actions (recommended)
 
 The repo ships `.github/workflows/pages.yml`, which builds `pages/` with Jekyll
-and deploys it on every push to `master`.
+and deploys it on every push to `master`. The `configure-pages` step uses
+`enablement: true`, so it **turns Pages on automatically** (build type: GitHub
+Actions) — no manual settings step needed.
 
 1. Push the `pages/` folder and the workflow to `master`.
-2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub
-   Actions**.
-3. The workflow runs (watch **Actions**); the site goes live at
-   `https://<user>.github.io/<repo>/`.
+2. Watch the **Actions** tab; on success the site goes live at
+   `https://<user>.github.io/<repo>/` (and the URL is shown on the `deploy`
+   job).
 
 You can also trigger it manually from the **Actions** tab
-(*workflow_dispatch*).
+(*workflow_dispatch*). If auto-enable is blocked by org policy, enable it once
+under **Settings → Pages → Source: GitHub Actions** and re-run.
 
 Why this one: it publishes an arbitrary subfolder (`pages/`) without moving
 files, and it's the modern GitHub-recommended flow.
