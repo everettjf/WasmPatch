@@ -38,7 +38,12 @@ This gives apps the ability to:
 | 🔗 **Objective-C Bridge** | Call any Obj-C class or method from WebAssembly |
 | 🔄 **Method Replacement** | Hot-fix by replacing Obj-C methods at runtime |
 | 🍎 **Cross-Platform** | Works on both iOS and macOS |
-| 🛠️ **Runtime Diagnostics** | Load state, reset hooks, and inspect last runtime error |
+| 📐 **Struct Bridging** | Pass/return `CGPoint`/`CGSize`/`CGRect`/`NSRange` by value |
+| ✍️ **Author Ergonomics** | `WAP_REPLACE_*` macros (typos fail to compile), scope cleanup pools, `call_*_3/4` |
+| 🛠️ **Runtime Diagnostics** | Host log handler, strict-hook policy, structured load/runtime errors |
+| 📦 **SPM + CocoaPods** | Swift Package Manager and CocoaPods integration |
+| 🦅 **Swift Support** | `@objc dynamic` hooking + hookable-surface scanner — see [SWIFT.md](SWIFT.md) |
+| 🌐 **Remote Delivery** | `WAPPatchManager` — fetch, SHA-256 verify, cache, apply |
 | 🧪 **Regression Assets** | Test case bundle and fixture hosts for bridge validation |
 
 ---
@@ -85,14 +90,50 @@ git clone https://github.com/everettjf/WasmPatch.git
 cd WasmPatch
 ```
 
+**Integrate into your app** via Swift Package Manager:
+
+```swift
+// Package.swift
+.package(url: "https://github.com/everettjf/WasmPatch.git", branch: "master")
+```
+
+or CocoaPods (`pod 'WasmPatch'`). Swift apps: see [SWIFT.md](SWIFT.md) for what
+`@objc dynamic` methods can be hooked and how value/struct types bridge.
+
 ### 2. Compile a Patch
 
 ```bash
-# Simplest entry point
-sh Tool/build-patch.sh your_patch.c
+# Check the toolchain is ready (clang wasm target, wasm-ld, SDK header)
+Tool/wasmpatch doctor
 
-# Optional explicit output path
-sh Tool/build-patch.sh your_patch.c build/your_patch.wasm
+# Compile a patch — the author SDK header <wasmpatch.h> is on the include path
+# automatically, and a .sha256 + .meta.json are emitted next to the .wasm.
+Tool/wasmpatch build your_patch.c
+Tool/wasmpatch build your_patch.c build/your_patch.wasm
+
+# (the older entry point still works)
+sh Tool/build-patch.sh your_patch.c
+```
+
+Patch sources just `#include <wasmpatch.h>` and use the ergonomic macros:
+
+```c
+#include <wasmpatch.h>
+
+WAPObject my_token(WAPObject self, const char *cmd) {
+    return new_objc_nsstring("patched");
+}
+
+int entry() {
+    // Registered name is derived from the real symbol — a typo won't compile.
+    WAP_REPLACE_CLASS(MyClass, "token", my_token);
+
+    WAP_POOL_BEGIN(pool);                       // scope-based cleanup
+    WAPObject s = WAP_KEEP(pool, new_objc_nsstring("hi"));
+    call_class_method_1("Logger", "log:", s);
+    WAP_POOL_END(pool);                         // frees everything kept
+    return 0;
+}
 ```
 
 ### 3. Load in Your App
@@ -292,10 +333,30 @@ sh TestCase/compile-testcase.sh
 - [API Reference](#public-runtime-api)
 - [Tooling Guide](#-development)
 
+## Remote Delivery
+
+`WAPPatchManager` downloads a patch, verifies its SHA-256, caches it, and applies it:
+
+```objc
+#import <WasmPatch/WAPPatchManager.h>
+
+[[WAPPatchManager sharedManager] fetchPatchFromURL:url
+                                             named:@"login_fix"
+                                            sha256:expectedHash
+                                        completion:^(NSString *cachedPath, NSError *error) {
+    if (cachedPath) {
+        [[WAPPatchManager sharedManager] applyCachedPatchNamed:@"login_fix" options:nil error:nil];
+    }
+}];
+```
+
 ## Current Maturity
 
-- Stronger than the original prototype on diagnostics, reset safety, and scripting.
-- Still behind best-in-class hotfix platforms on sandboxing, signature coverage, ABI compatibility testing, and release automation.
+- Author ergonomics (macros, cleanup pools, CLI), struct bridging, host log
+  handler, strict-hook load policy, SPM support, and a Swift hookable-surface
+  scanner are in place.
+- Closures/blocks bridging, asymmetric patch signing, and generic struct support
+  are still open — see [ROADMAP.md](ROADMAP.md).
 
 ## Release Checklist
 

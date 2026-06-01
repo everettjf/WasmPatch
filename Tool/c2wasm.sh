@@ -31,9 +31,28 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WAP_SDK_DIR="${WAP_SDK_DIR:-$SCRIPT_DIR/sdk}"
 
-CLANG_BIN="${CLANG_BIN:-$(command -v clang || true)}"
+# Resolve a clang that actually has the wasm32 backend. Apple's /usr/bin/clang
+# does not, so fall back to a Homebrew LLVM before giving up.
+resolve_wasm_clang() {
+  if [ -n "${CLANG_BIN:-}" ]; then echo "$CLANG_BIN"; return; fi
+  for c in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang "$(command -v clang || true)"; do
+    if [ -n "$c" ] && [ -x "$c" ] && "$c" --print-targets 2>/dev/null | grep -qi wasm; then
+      echo "$c"; return
+    fi
+  done
+  command -v clang || true
+}
+
+CLANG_BIN="$(resolve_wasm_clang)"
 WASM2WAT="${WASM2WAT:-$(command -v wasm2wat || true)}"
-WASM_LD_BIN="${WASM_LD_BIN:-$(command -v wasm-ld || true)}"
+# Prefer the wasm-ld that ships next to the resolved clang.
+if [ -z "${WASM_LD_BIN:-}" ]; then
+  if [ -n "$CLANG_BIN" ] && [ -x "$(dirname "$CLANG_BIN")/wasm-ld" ]; then
+    WASM_LD_BIN="$(dirname "$CLANG_BIN")/wasm-ld"
+  else
+    WASM_LD_BIN="$(command -v wasm-ld || true)"
+  fi
+fi
 
 if [ -z "$CLANG_BIN" ]
 then

@@ -42,8 +42,8 @@ typedef NS_ERROR_ENUM(WAPPatchLoaderErrorDomain, WAPPatchLoaderErrorCode) {
 + (BOOL)loadPatchAtPath:(NSString *)path options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error;
 + (BOOL)loadPatchData:(NSData *)data error:(NSError * _Nullable * _Nullable)error;
 + (BOOL)loadPatchData:(NSData *)data options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error;
-+ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle error:(NSError * _Nullable * _Nullable)error;
-+ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error;
++ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NAME(loadPatch(named:inBundle:));
++ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NAME(loadPatch(named:inBundle:options:));
 + (WAPPatchLoaderOptions *)recommendedOptions;
 + (BOOL)isLoaded;
 + (NSString * _Nullable)lastErrorMessage;
