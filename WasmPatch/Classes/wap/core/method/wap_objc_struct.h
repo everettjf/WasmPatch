@@ -136,7 +136,7 @@ static inline bool StructUnwrapBytes(StructKind kind, id value, void *outBytes) 
 // supported.
 // ===========================================================================
 
-inline ffi_type * GenericFFITypeForEncoding(const std::string &enc, size_t &i);
+inline size_t GenericEncodingSize(const char *encoding); // defined below
 
 // Map a single scalar encoding char to its ffi_type.
 inline ffi_type * GenericScalarFFIType(char c) {
@@ -159,54 +159,95 @@ inline ffi_type * GenericScalarFFIType(char c) {
     }
 }
 
-// Build (and leak, intentionally — libffi needs it for the process lifetime) a
-// FFI_TYPE_STRUCT describing the members of `{...}` at s[i].
-inline ffi_type * GenericBuildStructFFIType(const std::string &s, size_t &i) {
-    if (i >= s.size() || s[i] != '{') return nullptr;
-    i++; // skip '{'
-    while (i < s.size() && s[i] != '=' && s[i] != '}') i++; // skip struct name
-    if (i < s.size() && s[i] == '=') i++;                   // skip '='
+// Build an integer "blob" ffi_type of exactly `size` bytes with natural integer
+// alignment. Used for unions and bitfield-containing structs, which are
+// integer-classified aggregates on arm64/x86_64. Aggregates that mix
+// floating-point members into a union/bitfield are NOT handled correctly and
+// are documented as unsupported.
+inline ffi_type * GenericBlobFFIType(size_t size) {
+    if (size == 0) return nullptr;
+    ffi_type *unit; size_t width;
+    if (size % 8 == 0)      { unit = &ffi_type_uint64; width = 8; }
+    else if (size % 4 == 0) { unit = &ffi_type_uint32; width = 4; }
+    else if (size % 2 == 0) { unit = &ffi_type_uint16; width = 2; }
+    else                    { unit = &ffi_type_uint8;  width = 1; }
+    size_t count = size / width;
+    ffi_type **elements = (ffi_type **)malloc(sizeof(ffi_type *) * (count + 1));
+    for (size_t k = 0; k < count; ++k) elements[k] = unit;
+    elements[count] = nullptr;
+    ffi_type *t = (ffi_type *)malloc(sizeof(ffi_type));
+    t->size = 0; t->alignment = 0; t->type = FFI_TYPE_STRUCT; t->elements = elements;
+    return t;
+}
+
+// Extract a balanced {...}/(...)/[...] token at s[i], advancing i past it.
+inline std::string GenericExtractBalanced(const std::string &s, size_t &i) {
+    if (i >= s.size()) return std::string();
+    size_t start = i;
+    int depth = 0;
+    for (; i < s.size(); ++i) {
+        char c = s[i];
+        if (c == '{' || c == '(' || c == '[') depth++;
+        else if (c == '}' || c == ')' || c == ']') { depth--; if (depth == 0) { i++; break; } }
+    }
+    return s.substr(start, i - start);
+}
+
+inline ffi_type * GenericFFITypeForEncoding(const std::string &s, size_t &i);
+
+// Build ffi_type for a complete aggregate token "{...}" (struct) or "(...)"
+// (union).
+inline ffi_type * GenericAggregateFFIType(const std::string &token) {
+    if (token.size() < 2) return nullptr;
+
+    // Unions become an integer blob of the union's size.
+    if (token[0] == '(') {
+        return GenericBlobFFIType(GenericEncodingSize(token.c_str()));
+    }
+    if (token[0] != '{') return nullptr;
+
+    // Struct: parse members. A bitfield member (bN) can't be modelled per
+    // member, so the whole struct is represented as an integer blob.
+    size_t i = 1;
+    while (i < token.size() && token[i] != '=' && token[i] != '}') i++;
+    if (i < token.size() && token[i] == '=') i++;
 
     std::vector<ffi_type *> members;
-    while (i < s.size() && s[i] != '}') {
-        if (s[i] == '"') { // skip quoted field name: "field"
+    while (i < token.size() && token[i] != '}') {
+        if (token[i] == '"') { // skip quoted field name
             i++;
-            while (i < s.size() && s[i] != '"') i++;
-            if (i < s.size()) i++;
+            while (i < token.size() && token[i] != '"') i++;
+            if (i < token.size()) i++;
             continue;
         }
-        ffi_type *m = GenericFFITypeForEncoding(s, i);
+        if (token[i] == 'b' && i + 1 < token.size() && isdigit((unsigned char)token[i + 1])) {
+            return GenericBlobFFIType(GenericEncodingSize(token.c_str()));
+        }
+        ffi_type *m = GenericFFITypeForEncoding(token, i);
         if (!m) return nullptr;
         members.push_back(m);
     }
-    if (i < s.size() && s[i] == '}') i++; // skip '}'
 
     ffi_type **elements = (ffi_type **)malloc(sizeof(ffi_type *) * (members.size() + 1));
     for (size_t k = 0; k < members.size(); ++k) elements[k] = members[k];
     elements[members.size()] = nullptr;
-
     ffi_type *t = (ffi_type *)malloc(sizeof(ffi_type));
-    t->size = 0;
-    t->alignment = 0;
-    t->type = FFI_TYPE_STRUCT;
-    t->elements = elements;
+    t->size = 0; t->alignment = 0; t->type = FFI_TYPE_STRUCT; t->elements = elements;
     return t;
 }
 
 // Parse one type token at s[i], advancing i. Handles qualifiers, scalars,
-// pointers, nested structs and fixed arrays.
+// pointers, nested structs/unions, fixed arrays and standalone bitfields.
 inline ffi_type * GenericFFITypeForEncoding(const std::string &s, size_t &i) {
     while (i < s.size() && strchr("rnNoORV", s[i])) i++; // type qualifiers
     if (i >= s.size()) return nullptr;
     char c = s[i];
-    if (c == '{') return GenericBuildStructFFIType(s, i);
+    if (c == '{' || c == '(') { std::string tok = GenericExtractBalanced(s, i); return GenericAggregateFFIType(tok); }
     if (c == '[') { // array: [count type] -> struct of `count` identical members
         i++;
         int count = 0;
         while (i < s.size() && isdigit((unsigned char)s[i])) { count = count * 10 + (s[i] - '0'); i++; }
-        size_t save = i;
         ffi_type *el = GenericFFITypeForEncoding(s, i);
-        (void)save;
         if (i < s.size() && s[i] == ']') i++;
         if (!el || count <= 0) return nullptr;
         ffi_type **elements = (ffi_type **)malloc(sizeof(ffi_type *) * (count + 1));
@@ -216,6 +257,11 @@ inline ffi_type * GenericFFITypeForEncoding(const std::string &s, size_t &i) {
         t->size = 0; t->alignment = 0; t->type = FFI_TYPE_STRUCT; t->elements = elements;
         return t;
     }
+    if (c == 'b') { // standalone bitfield is only meaningful inside a struct
+        i++;
+        while (i < s.size() && isdigit((unsigned char)s[i])) i++;
+        return nullptr;
+    }
     if (c == '^') { i++; size_t j = i; GenericFFITypeForEncoding(s, j); i = j; return &ffi_type_pointer; }
     if (c == '@') { i++; if (i < s.size() && s[i] == '"') { i++; while (i < s.size() && s[i] != '"') i++; if (i < s.size()) i++; } return &ffi_type_pointer; }
     ffi_type *scalar = GenericScalarFFIType(c);
@@ -223,13 +269,13 @@ inline ffi_type * GenericFFITypeForEncoding(const std::string &s, size_t &i) {
     return nullptr;
 }
 
-// Public: ffi_type for a struct encoding, cached so the same encoding always
-// yields the same pointer (libffi requirement within a cif).
+// Public: ffi_type for a struct or union encoding, cached so the same encoding
+// always yields the same pointer (libffi requirement within a cif).
 inline ffi_type * GenericStructFFIType(const char *encoding) {
     if (!encoding) return nullptr;
     const char *c = encoding;
     if (c[0] == 'r') c++;
-    if (c[0] != '{') return nullptr;
+    if (c[0] != '{' && c[0] != '(') return nullptr;
 
     static std::mutex cacheMutex;
     static std::map<std::string, ffi_type *> cache;
@@ -239,7 +285,8 @@ inline ffi_type * GenericStructFFIType(const char *encoding) {
     if (it != cache.end()) return it->second;
 
     size_t i = 0;
-    ffi_type *t = GenericBuildStructFFIType(key, i);
+    std::string tok = GenericExtractBalanced(key, i);
+    ffi_type *t = GenericAggregateFFIType(tok);
     cache[key] = t; // cache even nullptr to avoid rebuilding on failure
     return t;
 }
@@ -273,16 +320,101 @@ inline bool GenericUnwrapBytes(id value, void *out, size_t size) {
     return true;
 }
 
-// Size in bytes of a struct (or any) encoding, via the Objective-C runtime.
+// --- manual layout (used when NSGetSizeAndAlignment can't, i.e. bitfields) ---
+
+inline void GenericScalarSizeAlign(char c, size_t &size, size_t &align) {
+    switch (c) {
+        case 'c': case 'C': case 'B': size = 1; align = 1; break;
+        case 's': case 'S': size = 2; align = 2; break;
+        case 'i': case 'I': case 'f': size = 4; align = 4; break;
+        case 'q': case 'Q': case 'd': case 'l': case 'L': size = 8; align = 8; break;
+        case '*': case '^': case '@': case '#': case ':': size = 8; align = 8; break;
+        default: size = 0; align = 1; break;
+    }
+}
+
+inline bool GenericTokenLayout(const std::string &token, size_t &outSize, size_t &outAlign);
+
+// Layout of one member at s[i], advancing i. For a bitfield, sets bits>0.
+inline void GenericNextMemberLayout(const std::string &s, size_t &i, size_t &size, size_t &align, int &bits) {
+    size = 0; align = 1; bits = 0;
+    while (i < s.size() && strchr("rnNoORV", s[i])) i++;
+    if (i >= s.size()) return;
+    char c = s[i];
+    if (c == 'b') { i++; int w = 0; while (i < s.size() && isdigit((unsigned char)s[i])) { w = w * 10 + (s[i] - '0'); i++; } bits = w; return; }
+    if (c == '{' || c == '(') { std::string tok = GenericExtractBalanced(s, i); GenericTokenLayout(tok, size, align); return; }
+    if (c == '[') {
+        i++; int n = 0; while (i < s.size() && isdigit((unsigned char)s[i])) { n = n * 10 + (s[i] - '0'); i++; }
+        size_t es = 0, ea = 1; int eb = 0; GenericNextMemberLayout(s, i, es, ea, eb);
+        if (i < s.size() && s[i] == ']') i++;
+        size = es * (n > 0 ? n : 0); align = ea; return;
+    }
+    if (c == '^') { i++; size_t j = i; size_t s2; size_t a2; int b2; GenericNextMemberLayout(s, j, s2, a2, b2); i = j; size = 8; align = 8; return; }
+    if (c == '@') { i++; if (i < s.size() && s[i] == '"') { i++; while (i < s.size() && s[i] != '"') i++; if (i < s.size()) i++; } size = 8; align = 8; return; }
+    GenericScalarSizeAlign(c, size, align); i++;
+}
+
+// Compute size/alignment of a "{...}" struct or "(...)" union token, including
+// bitfields. Bitfield storage type is not in the encoding, so an all-bitfield
+// struct's alignment is inferred from its byte size — correct when the
+// bitfields fill their storage unit (the common case).
+inline bool GenericTokenLayout(const std::string &token, size_t &outSize, size_t &outAlign) {
+    if (token.size() < 2) { outSize = 0; outAlign = 1; return false; }
+    bool isUnion = token[0] == '(';
+    size_t i = 1;
+    while (i < token.size() && token[i] != '=' && token[i] != '}' && token[i] != ')') i++;
+    if (i < token.size() && token[i] == '=') i++;
+
+    size_t off = 0, maxAlign = 1; int pendingBits = 0;
+    char close = isUnion ? ')' : '}';
+    while (i < token.size() && token[i] != close) {
+        if (token[i] == '"') { i++; while (i < token.size() && token[i] != '"') i++; if (i < token.size()) i++; continue; }
+        size_t ms = 0, ma = 1; int mb = 0;
+        GenericNextMemberLayout(token, i, ms, ma, mb);
+        if (mb > 0) {
+            pendingBits += mb;
+        } else if (ms > 0) {
+            if (isUnion) {
+                if (ms > off) off = ms;            // union: largest member
+            } else {
+                if (pendingBits) { off += (size_t)((pendingBits + 7) / 8); pendingBits = 0; }
+                off = (off + (ma - 1)) & ~(ma - 1); // align
+                off += ms;
+            }
+            if (ma > maxAlign) maxAlign = ma;
+        } else {
+            break; // unparseable
+        }
+    }
+    if (pendingBits) off += (size_t)((pendingBits + 7) / 8);
+    if (maxAlign == 1 && off > 1) { // all-bitfield: infer alignment from size
+        size_t p = 1; while (p < off && p < 8) p <<= 1; maxAlign = p;
+    }
+    outAlign = maxAlign;
+    outSize = (off + (maxAlign - 1)) & ~(maxAlign - 1);
+    return true;
+}
+
+// Size in bytes of an encoding. Uses the Objective-C runtime when possible and
+// falls back to manual layout for bitfield-containing structs (which
+// NSGetSizeAndAlignment rejects).
 inline size_t GenericEncodingSize(const char *encoding) {
     if (!encoding) return 0;
     NSUInteger size = 0, align = 0;
     @try {
         NSGetSizeAndAlignment(encoding, &size, &align);
+        return (size_t)size;
     } @catch (__unused id e) {
-        return 0;
+        // Likely a bitfield; compute manually.
+        const char *c = encoding;
+        if (c[0] == 'r') c++;
+        std::string s(c);
+        size_t i = 0;
+        std::string tok = GenericExtractBalanced(s, i);
+        size_t sz = 0, al = 1;
+        if (tok.size() >= 2) GenericTokenLayout(tok, sz, al);
+        return sz;
     }
-    return (size_t)size;
 }
 
 }

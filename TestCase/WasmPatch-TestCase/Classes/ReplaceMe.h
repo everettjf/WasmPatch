@@ -17,6 +17,24 @@ typedef struct WAPTriple {
     int64_t c;
 } WAPTriple;
 
+// A struct with bitfields (4 bytes): a@bits0-3, b@bits4-7, c@bits8-31.
+typedef struct WAPFlags {
+    uint32_t a : 4;
+    uint32_t b : 4;
+    uint32_t c : 24;
+} WAPFlags;
+
+// A union and a struct that contains it (8 bytes): tag@0, value@4.
+typedef union WAPNum {
+    int32_t i;
+    float f;
+} WAPNum;
+
+typedef struct WAPTagged {
+    int32_t tag;
+    WAPNum value;
+} WAPTagged;
+
 @interface ReplaceMe : NSObject
 
 // struct bridging coverage
@@ -26,6 +44,11 @@ typedef struct WAPTriple {
 // generic (non-geometry) struct bridging
 - (int64_t)sumTriple:(WAPTriple)triple;  // replaced; reads generic struct fields
 + (WAPTriple)buildTriple;                // replaced; builds a generic struct
+
+// bitfield + union bridging
+- (int32_t)readFlags:(WAPFlags)flags;    // replaced; reads bitfields
++ (WAPFlags)buildFlags;                  // replaced; builds a bitfield struct
+- (int32_t)readTagged:(WAPTagged)tagged; // replaced; reads a struct with a union member
 
 // block bridging coverage: replaced; the patch invokes the completion handler
 - (void)fetchWithCompletion:(void (^)(NSString *result))completion;

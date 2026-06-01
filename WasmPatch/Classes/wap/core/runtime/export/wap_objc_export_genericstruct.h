@@ -74,4 +74,57 @@ __WAP_EXPORT_FUNCTION(struct_set_int64_raw)  { m3ApiReturnType(WAPResultVoid) m3
 __WAP_EXPORT_FUNCTION(struct_set_float_raw)  { m3ApiReturnType(WAPResultVoid) m3ApiGetArg(WAPObject,h) m3ApiGetArg(int32_t,o) m3ApiGetArg(float,v)   WAPResultVoid r = struct_set_float(h,o,v);   m3ApiReturn(r) }
 __WAP_EXPORT_FUNCTION(struct_set_double_raw) { m3ApiReturnType(WAPResultVoid) m3ApiGetArg(WAPObject,h) m3ApiGetArg(int32_t,o) m3ApiGetArg(double,v)  WAPResultVoid r = struct_set_double(h,o,v); m3ApiReturn(r) }
 
+// --- bitfield access ------------------------------------------------------
+// Bitfields aren't byte-addressable, so these read/write a run of bits treating
+// the struct's storage as a little-endian bit stream (matching clang's layout
+// on Apple platforms). `bitOffset` is counted from the start of the struct.
+
+uint64_t struct_get_bits(WAPObject handle, int bitOffset, int bitWidth) {
+    if (bitWidth <= 0 || bitWidth > 64 || bitOffset < 0 || handle == 0) return 0;
+    WAPInternalObject *obj = GetInternalObject(handle);
+    if (!obj || ![obj->value isKindOfClass:[NSData class]]) return 0;
+    NSData *data = (NSData *)obj->value;
+    const uint8_t *bytes = (const uint8_t *)data.bytes;
+    uint64_t result = 0;
+    for (int i = 0; i < bitWidth; ++i) {
+        int bit = bitOffset + i;
+        size_t byteIndex = (size_t)(bit / 8);
+        if (byteIndex >= data.length) break;
+        uint64_t b = (bytes[byteIndex] >> (bit % 8)) & 0x1ULL;
+        result |= (b << i);
+    }
+    return result;
+}
+
+WAPResultVoid struct_set_bits(WAPObject handle, int bitOffset, int bitWidth, uint64_t value) {
+    if (bitWidth <= 0 || bitWidth > 64 || bitOffset < 0 || handle == 0) return 0;
+    WAPInternalObject *obj = GetInternalObject(handle);
+    if (!obj || ![obj->value isKindOfClass:[NSMutableData class]]) return 0;
+    NSMutableData *data = (NSMutableData *)obj->value;
+    uint8_t *bytes = (uint8_t *)data.mutableBytes;
+    for (int i = 0; i < bitWidth; ++i) {
+        int bit = bitOffset + i;
+        size_t byteIndex = (size_t)(bit / 8);
+        if (byteIndex >= data.length) break;
+        uint8_t mask = (uint8_t)(1u << (bit % 8));
+        if ((value >> i) & 0x1ULL) bytes[byteIndex] |= mask;
+        else bytes[byteIndex] &= (uint8_t)~mask;
+    }
+    return 0;
+}
+
+__WAP_EXPORT_FUNCTION(struct_get_bits_raw) {
+    m3ApiReturnType(int64_t)
+    m3ApiGetArg(WAPObject,h) m3ApiGetArg(int32_t,off) m3ApiGetArg(int32_t,width)
+    int64_t r = (int64_t)struct_get_bits(h, off, width);
+    m3ApiReturn(r)
+}
+
+__WAP_EXPORT_FUNCTION(struct_set_bits_raw) {
+    m3ApiReturnType(WAPResultVoid)
+    m3ApiGetArg(WAPObject,h) m3ApiGetArg(int32_t,off) m3ApiGetArg(int32_t,width) m3ApiGetArg(int64_t,v)
+    WAPResultVoid r = struct_set_bits(h, off, width, (uint64_t)v);
+    m3ApiReturn(r)
+}
+
 #endif /* wap_objc_export_genericstruct_h */

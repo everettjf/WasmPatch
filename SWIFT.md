@@ -170,9 +170,29 @@ struct_set_float(v, 8, 3.0f);
 //   float x = struct_get_float(incoming, 0);
 ```
 
+### Unions & bitfields
+
+Structs containing **unions** or **bitfields** bridge too. Read a union member
+at its byte offset; read/write bitfields with `struct_get_bits` /
+`struct_set_bits` (bit offsets counted from the struct start):
+
+```c
+// struct { uint32_t a:4; uint32_t b:4; uint32_t c:24; }  -> "{Flags=b4b4b24}"
+WAPObject f = alloc_struct("{Flags=b4b4b24}");
+struct_set_bits(f, 0, 4, 1);    // a = 1
+struct_set_bits(f, 4, 4, 2);    // b = 2
+struct_set_bits(f, 8, 24, 300); // c = 300
+// reading an incoming one: int64_t a = struct_get_bits(incoming, 0, 4);
+```
+
 ## Current limitations
 
-- **Unions and bitfields** inside structs are not supported.
+- A **bitfield's storage type isn't in the `@encode` string**, so the layout
+  engine infers an all-bitfield struct's size from its total bit count. This is
+  correct when the bitfields fill their storage unit (the usual case); pad to a
+  whole storage unit if your struct has trailing unused bits in a wider type.
+- **Bare top-level union arguments** aren't bridged — wrap the union in a struct.
+- Floating-point members inside a union aren't classified correctly.
 - Swift `enum`s and `Optional` of value types are not specially bridged; expose
   an `@objc`-compatible surface (e.g. `NSInteger`, nullable objects) at the
   patch boundary.

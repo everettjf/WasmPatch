@@ -55,7 +55,7 @@ WasmPatch bridges **Objective-C** and **WebAssembly**. It compiles C code into W
 | 🔗 **Objective-C Bridge** | Call any Obj-C class or method from WebAssembly |
 | 🔄 **Method Replacement** | Hot-fix by replacing Obj-C methods at runtime |
 | 🍎 **Cross-Platform** | Works on both iOS and macOS |
-| 📐 **Struct Bridging** | Pass/return geometry structs *and* arbitrary by-value structs (`alloc_struct` + field accessors) |
+| 📐 **Struct Bridging** | Pass/return geometry structs *and* arbitrary by-value structs — including unions & bitfields (`alloc_struct`, field + bit accessors) |
 | ✍️ **Author Ergonomics** | `WAP_REPLACE_*` macros (typos fail to compile), scope cleanup pools, `call_*_3/4` |
 | 🛠️ **Runtime Diagnostics** | Host log handler, strict-hook policy, structured load/runtime errors |
 | 📦 **SPM + CocoaPods** | Swift Package Manager and CocoaPods integration |
@@ -401,8 +401,9 @@ if (![WAPPatchLoader loadPatchAtPath:path options:options error:&error] &&
   support, remote delivery (`WAPPatchManager`), and Swift `@objc dynamic`
   hooking are in place and exercised end-to-end (`Tool/validate-*.sh`).
 - Bidirectional block bridging, EC P-256 patch signing, and generic by-value
-  struct bridging are all in place. Remaining edges (unions, bitfields,
-  asymmetric *key distribution* tooling) are noted in [ROADMAP.md](ROADMAP.md).
+  struct bridging (including structs with unions and bitfields) are all in
+  place. Remaining edges (bare top-level unions, signing-key distribution
+  tooling) are noted in [ROADMAP.md](ROADMAP.md).
 
 ## Release Checklist
 

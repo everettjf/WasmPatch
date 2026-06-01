@@ -115,6 +115,36 @@ WAPObject my_class_ReplaceMe_buildtriple(WAPObject self, const char * cmd) {
     return t;
 }
 
+// Bitfield struct WAPFlags { a:4; b:4; c:24; } -> "{WAPFlags=b4b4b24}"
+#define WAP_FLAGS_ENCODING "{WAPFlags=b4b4b24}"
+
+// bitfield argument: read each bitfield run and combine
+int my_instance_ReplaceMe_readflags(WAPObject self, const char * cmd, WAPArray args) {
+    WAPObject f = get_array_item(args, 0);
+    int64_t a = struct_get_bits(f, 0, 4);   // bits 0-3
+    int64_t b = struct_get_bits(f, 4, 4);   // bits 4-7
+    int64_t c = struct_get_bits(f, 8, 24);  // bits 8-31
+    return (int)(a + b + c);
+}
+
+// bitfield return: build a WAPFlags by writing bit runs
+WAPObject my_class_ReplaceMe_buildflags(WAPObject self, const char * cmd) {
+    WAPObject f = alloc_struct(WAP_FLAGS_ENCODING);
+    struct_set_bits(f, 0, 4, 1);    // a = 1
+    struct_set_bits(f, 4, 4, 2);    // b = 2
+    struct_set_bits(f, 8, 24, 300); // c = 300
+    return f;
+}
+
+// union-in-struct argument: WAPTagged { int32 tag; union{int32 i; float f;} value; }
+// tag @ offset 0, union @ offset 4.
+int my_instance_ReplaceMe_readtagged(WAPObject self, const char * cmd, WAPArray args) {
+    WAPObject t = get_array_item(args, 0);
+    int32_t tag = struct_get_int32(t, 0);
+    int32_t value_i = struct_get_int32(t, 4); // union's int interpretation
+    return tag + value_i;
+}
+
 int entry() {
     // method call - class method
     call_class_method_0("CallMe", "sayHi");
@@ -159,6 +189,9 @@ int entry() {
     WAP_REPLACE_INSTANCE(ReplaceMe, "fetchWithCompletion:", my_instance_ReplaceMe_fetch);
     WAP_REPLACE_INSTANCE(ReplaceMe, "sumTriple:", my_instance_ReplaceMe_sumtriple);
     WAP_REPLACE_CLASS(ReplaceMe, "buildTriple", my_class_ReplaceMe_buildtriple);
+    WAP_REPLACE_INSTANCE(ReplaceMe, "readFlags:", my_instance_ReplaceMe_readflags);
+    WAP_REPLACE_CLASS(ReplaceMe, "buildFlags", my_class_ReplaceMe_buildflags);
+    WAP_REPLACE_INSTANCE(ReplaceMe, "readTagged:", my_instance_ReplaceMe_readtagged);
 
     // struct round-trip: build a CGRect, send it through an Obj-C method that
     // returns a CGRect, then forward the doubled fields back via a 4-arg call.
