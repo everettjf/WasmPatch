@@ -23,6 +23,15 @@
     }
 }
 
+- (int64_t)sumTriple:(WAPTriple)triple {
+    return -1; // replaced by the patch
+}
+
++ (WAPTriple)buildTriple {
+    WAPTriple t = {0, 0, 0}; // replaced by the patch
+    return t;
+}
+
 + (void)request {
     NSLog(@"+ ReplaceMe request");
 }

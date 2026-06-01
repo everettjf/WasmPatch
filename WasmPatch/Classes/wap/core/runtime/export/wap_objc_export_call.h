@@ -150,14 +150,23 @@ break; \
                     break;
                 }
                 case '{': {
-                    // Unwrap a bridged struct (NSValue) into a stack buffer and
-                    // hand it to the invocation by value. NSInvocation copies the
-                    // argument bytes, so the buffer only needs to outlive setArgument.
-                    wap::StructKind kind = wap::StructKindFromEncoding(argumentType[0] == 'r' ? argumentType + 1 : argumentType);
+                    // Unwrap a bridged struct into a buffer and hand it to the
+                    // invocation by value. NSInvocation copies the argument
+                    // bytes, so the buffer only needs to outlive setArgument.
+                    const char *enc = (argumentType[0] == 'r') ? argumentType + 1 : argumentType;
+                    wap::StructKind kind = wap::StructKindFromEncoding(enc);
                     if (kind != wap::StructKind::None) {
                         unsigned char structBuffer[64] = {0};
                         if (wap::StructUnwrapBytes(kind, inputParam->value, structBuffer)) {
                             [invocation setArgument:structBuffer atIndex:paramIndex];
+                        }
+                    } else {
+                        size_t size = wap::GenericEncodingSize(enc);
+                        if (size > 0) {
+                            std::vector<unsigned char> structBuffer(size, 0);
+                            if (wap::GenericUnwrapBytes(inputParam->value, structBuffer.data(), size)) {
+                                [invocation setArgument:structBuffer.data() atIndex:paramIndex];
+                            }
                         }
                     }
                     break;
@@ -246,13 +255,24 @@ break; \
                     WAP_CALL_RET_CASE('d', "d", double)
                     
                 case '{': {
-                    wap::StructKind kind = wap::StructKindFromEncoding(returnType[0] == 'r' ? returnType + 1 : returnType);
+                    const char *enc = (returnType[0] == 'r') ? returnType + 1 : returnType;
+                    wap::StructKind kind = wap::StructKindFromEncoding(enc);
                     if (kind != wap::StructKind::None) {
                         unsigned char structBuffer[64] = {0};
                         [invocation getReturnValue:structBuffer];
                         NSValue *boxed = wap::StructWrapBytes(kind, structBuffer);
                         if (boxed) {
                             return WAPCreateObjectFromObjcValue(wap::StructTypeTag(kind), boxed);
+                        }
+                    } else {
+                        size_t size = wap::GenericEncodingSize(enc);
+                        if (size > 0) {
+                            std::vector<unsigned char> structBuffer(size, 0);
+                            [invocation getReturnValue:structBuffer.data()];
+                            NSData *boxed = wap::GenericWrapBytes(structBuffer.data(), size);
+                            if (boxed) {
+                                return WAPCreateObjectFromObjcValue(wap::GenericStructTag(enc), boxed);
+                            }
                         }
                     }
                     break;

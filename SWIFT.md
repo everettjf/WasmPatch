@@ -154,10 +154,25 @@ async-completion flow); invoking it synchronously while `entry()` is still on
 the stack would re-enter the wasm runtime. Created blocks are owned by the
 runtime and released on reset.
 
+## Arbitrary structs
+
+Beyond the geometry helpers, any by-value struct is bridged generically: its
+libffi type is built from the Objective-C encoding, and the patch reads/writes
+fields by byte offset.
+
+```c
+// struct Vec3 { float x, y, z; }  ->  encoding "{Vec3=fff}", fields at 0/4/8
+WAPObject v = alloc_struct("{Vec3=fff}");
+struct_set_float(v, 0, 1.0f);
+struct_set_float(v, 4, 2.0f);
+struct_set_float(v, 8, 3.0f);
+// pass `v` to a method taking a Vec3, or read an incoming one:
+//   float x = struct_get_float(incoming, 0);
+```
+
 ## Current limitations
 
-- **Generic / arbitrary structs** beyond the geometry set above fall back to
-  pointer passing and should not be relied on.
+- **Unions and bitfields** inside structs are not supported.
 - Swift `enum`s and `Optional` of value types are not specially bridged; expose
   an `@objc`-compatible surface (e.g. `NSInteger`, nullable objects) at the
   patch boundary.

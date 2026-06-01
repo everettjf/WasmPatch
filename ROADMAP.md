@@ -64,7 +64,7 @@
 
 核心约束：当前桥基于 Obj-C 消息派发，**纯 Swift（静态/vtable 派发）方法无法 hook**。需先打通"可 hook 边界 + 值/结构体桥接"，再做接入体验。
 
-### B1. struct 桥接 — ✅ 完成（CGPoint/CGSize/CGRect/NSRange，已验证往返）
+### B1. struct 桥接 — ✅ 完成（几何结构体 + 通用任意结构体 alloc_struct/字段读写，已验证往返）
 现状：`'{'` 在 `ObjcMethodSignature::parse/ffitypeFromTypeEncoding`、`CreateObjectFromObjcTypeEncoding`、`__call_objc_method_param` 三处全为 TODO。
 
 - [x] 用 libffi 构造 struct 的 `ffi_type`，先覆盖高频结构体：`CGRect/CGPoint/CGSize/NSRange/CGAffineTransform/UIEdgeInsets`。

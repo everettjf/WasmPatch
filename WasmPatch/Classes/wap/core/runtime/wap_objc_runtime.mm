@@ -241,6 +241,16 @@ void ObjcRuntime::initRuntime() {
     RT_LINK(cgrect_get_width);
     RT_LINK(cgrect_get_height);
 
+    RT_LINK(alloc_struct);
+    RT_LINK(struct_get_int32);
+    RT_LINK(struct_get_int64);
+    RT_LINK(struct_get_float);
+    RT_LINK(struct_get_double);
+    RT_LINK(struct_set_int32);
+    RT_LINK(struct_set_int64);
+    RT_LINK(struct_set_float);
+    RT_LINK(struct_set_double);
+
     RT_LINK(print_object);
     RT_LINK(print_string);
     RT_LINK(dealloc_object);

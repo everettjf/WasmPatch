@@ -66,7 +66,12 @@ ffi_type* ObjcMethodSignature::ffitypeFromTypeEncoding(const char *encoding) {
             if (structType) {
                 return structType;
             }
-            // Unsupported struct: fall back to pointer so the cif still builds.
+            // Any other struct: build its ffi_type generically from the encoding.
+            ffi_type *generic = GenericStructFFIType(c);
+            if (generic) {
+                return generic;
+            }
+            // Truly unparseable: fall back to pointer so the cif still builds.
             return &ffi_type_pointer;
         }
     }
