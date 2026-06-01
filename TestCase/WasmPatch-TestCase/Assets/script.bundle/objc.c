@@ -85,6 +85,14 @@ int my_instance_ReplaceMe_fetch(WAPObject self, const char * cmd, WAPArray args)
     return 0;
 }
 
+// wasm-created block body: invoked by the host with one NSString argument;
+// forwards it back into Objective-C so the host can observe it ran.
+WAPObject my_created_block(WAPArray args) {
+    WAPObject value = get_array_item(args, 0);
+    call_class_method_1("CallMe", "recordBlockResult:", value);
+    return 0;
+}
+
 int entry() {
     // method call - class method
     call_class_method_0("CallMe", "sayHi");
@@ -140,6 +148,13 @@ int entry() {
                             alloc_double(cgrect_get_height(doubled)));
         dealloc_object(rect);
         dealloc_object(doubled);
+    }
+
+    // wasm-created block: hand a completion handler (implemented in wasm) to an
+    // Obj-C method. The host fires it later; see TestRunner.
+    {
+        WAPObject block = create_block("my_created_block", "v@?@"); // void(^)(NSString *)
+        call_class_method_1("CallMe", "registerCompletion:", block);
     }
 
     // other

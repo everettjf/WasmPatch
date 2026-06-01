@@ -8,6 +8,8 @@
 #import "CallMe.h"
 
 static CGRect gRecordedRect;
+static void (^gRegisteredCompletion)(NSString *);
+static NSString *gRecordedBlockResult;
 
 @implementation CallMe
 
@@ -23,6 +25,26 @@ static CGRect gRecordedRect;
 
 + (CGRect)recordedRect {
     return gRecordedRect;
+}
+
++ (void)registerCompletion:(void (^)(NSString *result))block {
+    gRegisteredCompletion = [block copy];
+    NSLog(@"+ CallMe registered a completion block");
+}
+
++ (void)fireRegisteredCompletionWith:(NSString *)value {
+    if (gRegisteredCompletion) {
+        gRegisteredCompletion(value);
+    }
+}
+
++ (void)recordBlockResult:(NSString *)result {
+    gRecordedBlockResult = [result copy];
+    NSLog(@"+ CallMe recordBlockResult: %@", result);
+}
+
++ (NSString *)recordedBlockResult {
+    return gRecordedBlockResult;
 }
 
 // class methods

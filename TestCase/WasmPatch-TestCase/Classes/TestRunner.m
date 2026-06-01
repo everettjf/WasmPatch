@@ -151,6 +151,12 @@
     NSLog(@"- ReplaceMe fetchWithCompletion => %@", blockResult);
     WAP_ASSERT([blockResult isEqualToString:@"from-wasm-block"], @"completion block bridging mismatch");
 
+    // wasm-created block: the patch handed CallMe a block; fire it and confirm
+    // the wasm body ran with our argument and called back into Objective-C.
+    [CallMe fireRegisteredCompletionWith:@"created-in-wasm"];
+    NSLog(@"+ CallMe recordedBlockResult => %@", [CallMe recordedBlockResult]);
+    WAP_ASSERT([[CallMe recordedBlockResult] isEqualToString:@"created-in-wasm"], @"wasm-created block mismatch");
+
 #undef WAP_ASSERT
 
     if (!passed) {

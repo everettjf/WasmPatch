@@ -118,6 +118,14 @@ extern WAPObject new_objc_nsnumber_int(int value);
 
 extern WAPObject invoke_block(WAPObject block, WAPArray args);
 
+// Create an Objective-C block backed by a wasm export, to pass into an Obj-C
+// method (e.g. a completion handler). `wasm_function_name` names an export of
+// the form `WAPObject fn(WAPArray args)`; `block_signature` is the block's
+// Objective-C type encoding including the leading "@?" block self, e.g.
+// "v@?@" for void(^)(NSString *). The callback runs when the host later invokes
+// the block — not while entry() is still executing.
+extern WAPObject create_block(const char * wasm_function_name, const char * block_signature);
+
 // ===========================================================================
 // Ergonomic macros
 // ===========================================================================

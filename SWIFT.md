@@ -129,10 +129,33 @@ int my_fetch(WAPObject self, const char *cmd, WAPArray args) {
 / integer / floating-point / `BOOL` arguments. The end-to-end Swift demo
 (`Tool/validate-swift.sh`) hooks an `@objc dynamic` method and verifies this.
 
+A patch can also **create a block** to hand *to* an Objective-C method (e.g. as
+a completion handler). `create_block` binds a wasm export to an Obj-C block; the
+export runs when the host later invokes the block:
+
+```c
+// wasm body: receives the block's arguments as a WAPArray
+WAPObject on_done(WAPArray args) {
+    WAPObject value = get_array_item(args, 0);
+    call_class_method_1("Analytics", "track:", value);
+    return 0; // non-void blocks return a WAPObject / scalar
+}
+
+int entry() {
+    // "v@?@" == void(^)(id). The "@?" is the implicit block self.
+    WAPObject block = create_block("on_done", "v@?@");
+    call_class_method_1("DataLoader", "loadWithCompletion:", block);
+    return 0;
+}
+```
+
+The block's wasm callback must run **after** `entry()` returns (the normal
+async-completion flow); invoking it synchronously while `entry()` is still on
+the stack would re-enter the wasm runtime. Created blocks are owned by the
+runtime and released on reset.
+
 ## Current limitations
 
-- **Creating new blocks inside wasm** to pass *into* an Objective-C method is
-  not supported — only invoking blocks the patch receives.
 - **Generic / arbitrary structs** beyond the geometry set above fall back to
   pointer passing and should not be relied on.
 - Swift `enum`s and `Optional` of value types are not specially bridged; expose
