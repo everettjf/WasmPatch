@@ -349,9 +349,16 @@ sh TestCase/compile-testcase.sh
 
 ## 📚 Documentation
 
-- [Architecture Overview](#-how-it-works)
-- [API Reference](#public-runtime-api)
-- [Tooling Guide](#-development)
+Full docs live in [`pages/`](pages/) (a GitHub Pages site — see
+[pages/DEPLOY.md](pages/DEPLOY.md) to publish it):
+
+- [Tutorial](pages/tutorial.md) — install → write → build → load
+- [Authoring patches](pages/guides/authoring.md) — SDK, macros, cleanup pools, calling methods
+- [Swift support](pages/guides/swift.md) — what's hookable, value/struct/block bridging ([SWIFT.md](SWIFT.md))
+- [Structs](pages/guides/structs.md) · [Blocks](pages/guides/blocks.md) · [Diagnostics](pages/guides/diagnostics.md)
+- [Remote delivery](pages/guides/remote-delivery.md) · [Patch signing](pages/guides/signing.md) · [Integration](pages/guides/integration.md)
+
+Reference: [Architecture](#-how-it-works) · [Runtime API](#public-runtime-api) · [Tooling](#-development) · [Roadmap](ROADMAP.md)
 
 ## Remote Delivery
 
