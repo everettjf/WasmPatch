@@ -25,11 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Configure Pages
+        # Requires Pages to be enabled once with Source = "GitHub Actions"
+        # (Settings → Pages). The Actions token can't self-enable Pages in this
+        # repo, so that one-time step is manual; see pages/DEPLOY.md.
         uses: actions/configure-pages@v5
-        with:
-          # Auto-enable Pages (build type: GitHub Actions) if it isn't already,
-          # so no manual repo-settings step is required.
-          enablement: true
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
