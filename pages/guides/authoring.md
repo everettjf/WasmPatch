@@ -1,10 +1,8 @@
 ---
-title: Authoring patches
+title: "Authoring patches"
+eyebrow: "Writing patches"
+description: "The C SDK, the WAP_REPLACE_* macros, scope cleanup pools, and calling Objective-C from a patch."
 ---
-
-# Authoring patches
-
-[← Docs home](../index.md)
 
 A patch is a C file that `#include <wasmpatch.h>` and exports an `entry()`
 function. The build tooling puts the SDK header on the include path
@@ -123,6 +121,6 @@ const char * wap_last_error(void);
 
 ## See also
 
-- [Structs](structs.md) — passing/returning structs by value
-- [Blocks](blocks.md) — completion handlers
-- [Swift support](swift.md) — what's hookable from Swift
+- [Structs](structs.html) — passing/returning structs by value
+- [Blocks](blocks.html) — completion handlers
+- [Swift support](swift.html) — what's hookable from Swift

@@ -1,10 +1,8 @@
 ---
-title: Remote delivery
+title: "Remote delivery"
+eyebrow: "Delivery & safety"
+description: "WAPPatchManager: fetch, SHA-256 verify, cache, and apply patches from your server."
 ---
-
-# Remote delivery
-
-[← Docs home](../index.md)
 
 `WAPPatchManager` handles the "fetch on launch, verify, cache, apply" flow for
 patches delivered from a server.
@@ -65,7 +63,7 @@ verify+cache step for patches you obtain yourself.
 ## Recommended hardening
 
 - Pair the SHA-256 integrity check with an **EC P-256 signature** so a tampered
-  patch can't be re-signed — see [Patch signing](signing.md). Pass
+  patch can't be re-signed — see [Patch signing](signing.html). Pass
   `publicKeyECBase64` + `signatureBase64` in the apply options.
 - Serve patches over HTTPS and gate them on app version / staged rollout on your
   server.

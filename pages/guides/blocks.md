@@ -1,10 +1,8 @@
 ---
-title: Blocks
+title: "Blocks & completion handlers"
+eyebrow: "Writing patches"
+description: "Invoke completion handlers you're handed, and create blocks to pass into Objective-C."
 ---
-
-# Blocks & completion handlers
-
-[← Docs home](../index.md)
 
 WasmPatch bridges Objective-C blocks in both directions: a patch can **invoke a
 block it was handed**, and **create a block to pass into** an Objective-C

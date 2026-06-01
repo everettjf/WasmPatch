@@ -1,0 +1,16 @@
+<aside class="sidebar" data-sidebar>
+  <nav class="sidebar__nav">
+    {% for section in site.data.nav %}
+    <div class="sidebar__section">
+      <p class="sidebar__title">{{ section.title }}</p>
+      <ul>
+        {% for item in section.items %}
+        <li>
+          <a href="{{ item.url | relative_url }}"{% if page.url == item.url %} class="active" aria-current="page"{% endif %}>{{ item.title }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </nav>
+</aside>

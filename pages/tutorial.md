@@ -1,12 +1,11 @@
 ---
-title: Tutorial
+title: "Tutorial"
+eyebrow: "Getting started"
+description: "From a clean machine to a live method replacement in about ten minutes — Objective-C and Swift."
 ---
-
-# Tutorial: your first hot-patch
 
 This walks from a clean machine to a live method replacement. ~10 minutes.
 
-[← Docs home](index.md)
 
 ## 1. Install the toolchain
 
@@ -41,7 +40,7 @@ You should see green `OK` lines for the wasm-capable clang, `wasm-ld`,
 pod 'WasmPatch'
 ```
 
-See [Integration](guides/integration.md) for details.
+See [Integration](guides/integration.html) for details.
 
 ## 3. Pick something to patch
 
@@ -84,7 +83,7 @@ int entry() {
 ```
 
 `entry()` runs once when the patch loads — register replacements and do any
-one-time calls there. See [Authoring patches](guides/authoring.md) for calling
+one-time calls there. See [Authoring patches](guides/authoring.html) for calling
 methods, passing arguments, structs, and blocks.
 
 ## 5. Build the patch
@@ -143,9 +142,9 @@ You'll see lines like `replaced -[SessionManager authToken] -> patched_token`.
 
 ## Next steps
 
-- Ship patches safely — [Patch signing](guides/signing.md) and
-  [Remote delivery](guides/remote-delivery.md).
-- Patch UIKit/AppKit APIs that use structs — [Structs](guides/structs.md).
-- Patch async APIs — [Blocks](guides/blocks.md).
+- Ship patches safely — [Patch signing](guides/signing.html) and
+  [Remote delivery](guides/remote-delivery.html).
+- Patch UIKit/AppKit APIs that use structs — [Structs](guides/structs.html).
+- Patch async APIs — [Blocks](guides/blocks.html).
 - See it live — the `Demo/WasmPatch-SwiftUI` app hot-patches an `@objc dynamic`
   method with Apply/Reset buttons.

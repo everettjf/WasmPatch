@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  {% include head.html %}
+</head>
+<body{% if page.hide_sidebar %} class="is-home"{% endif %}>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  {% include topbar.html %}
+
+  {% if page.hide_sidebar %}
+    <div class="shell shell--wide">
+      {{ content }}
+    </div>
+  {% else %}
+    <div class="shell">
+      {% include sidebar.html %}
+      <div class="content-wrap">
+        {{ content }}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="nav-scrim" data-nav-scrim></div>
+  <script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
+</body>
+</html>

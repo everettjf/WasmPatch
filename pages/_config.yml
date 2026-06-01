@@ -1,6 +1,35 @@
 # Jekyll configuration for the WasmPatch documentation site.
-# Built and deployed by .github/workflows/pages.yml (source: ./pages).
+# Custom layouts/styles live in _layouts, _includes, assets. Built & deployed by
+# .github/workflows/pages.yml (source: ./pages).
 title: WasmPatch
-description: WebAssembly-driven hot patching for iOS & macOS apps
-theme: jekyll-theme-cayman
-show_downloads: false
+tagline: WebAssembly-driven hot patching for iOS & macOS
+description: >-
+  Compile a C patch to WebAssembly, load it at runtime, and replace
+  Objective-C / Swift methods — no App Store round-trip.
+
+# Project page lives under /WasmPatch/.
+url: https://everettjf.github.io
+baseurl: /WasmPatch
+github_repo: https://github.com/everettjf/WasmPatch
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+
+# Every page is a documentation page unless it opts out (e.g. the home page).
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: doc
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .jekyll-cache
+  - README-INTERNAL.md
