@@ -45,6 +45,37 @@ WasmPatch bridges **Objective-C** and **WebAssembly**. It compiles C code into W
 
 ![WasmPatch Architecture](Image/WasmPatch.png)
 
+### Architecture at a glance
+
+```mermaid
+flowchart LR
+    subgraph Author["✍️ Author side"]
+        C["patch.c"]
+        CLI["Tool/wasmpatch build"]
+        WASM["patch.wasm<br/>+ .sha256 + signature"]
+        C --> CLI --> WASM
+    end
+
+    subgraph App["📱 Your iOS / macOS app"]
+        LOADER["WAPPatchLoader /<br/>WAPPatchManager"]
+        RT["wasm3 interpreter"]
+        BRIDGE["Host export bridge (C ABI)"]
+        OBJC["Objective-C / Swift runtime"]
+        LOADER --> RT --> BRIDGE --> OBJC
+    end
+
+    WASM -->|"verify · cache · deliver"| LOADER
+    OBJC -. "replaced IMP via libffi" .-> RT
+
+    style WASM fill:#bbf,color:#000
+    style OBJC fill:#bfb,color:#000
+```
+
+A patch is just a C file compiled to a tiny WebAssembly module. The app
+verifies and loads it into a sandboxed `wasm3` interpreter, whose only powers
+are the host functions WasmPatch exports — that bridge is what reaches into the
+live Objective-C / Swift runtime.
+
 ---
 
 ## ✨ Features
@@ -364,6 +395,21 @@ Reference: [Architecture](#-how-it-works) · [Runtime API](#public-runtime-api) 
 
 `WAPPatchManager` downloads a patch, verifies its SHA-256, caches it, and applies it:
 
+```mermaid
+sequenceDiagram
+    participant App
+    participant Mgr as WAPPatchManager
+    participant Srv as Patch server
+    App->>Mgr: fetchPatchFromURL:named:sha256:
+    Mgr->>Srv: GET patch.wasm
+    Srv-->>Mgr: bytes
+    Mgr->>Mgr: verify SHA-256 (integrity)
+    Mgr->>Mgr: cache on disk
+    Mgr-->>App: completion(cachedPath)
+    App->>Mgr: applyCachedPatchNamed:
+    Mgr->>Mgr: load + apply via libffi
+```
+
 ```objc
 #import <WasmPatch/WAPPatchManager.h>
 
@@ -381,6 +427,22 @@ Reference: [Architecture](#-how-it-works) · [Runtime API](#public-runtime-api) 
 
 SHA-256 (`expectedSHA256Hex`) proves integrity; an EC P-256 signature proves
 **authenticity** — a tampered patch can't be re-signed without the private key.
+
+```mermaid
+flowchart TD
+    KG["wasmpatch keygen<br/>→ patch_key.pem (private)"] --> SIGN["wasmpatch sign"]
+    BUILD["wasmpatch build<br/>→ patch.wasm"] --> SIGN
+    SIGN --> PUB["publicKeyECBase64<br/>(embedded in app)"]
+    SIGN --> SIG["signatureBase64<br/>(shipped with patch)"]
+    PUB --> GATE
+    SIG --> GATE
+    PATCH["delivered patch.wasm"] --> GATE{"verify SHA-256<br/>+ EC P-256"}
+    GATE -->|valid| OK["✅ load and apply"]
+    GATE -->|invalid| NO["⛔ refuse:<br/>SignatureInvalid"]
+
+    style OK fill:#bfb,color:#000
+    style NO fill:#fbb,color:#000
+```
 
 ```bash
 # one-time: create a signing key (keep the .pem private)

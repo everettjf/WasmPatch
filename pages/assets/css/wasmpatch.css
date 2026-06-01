@@ -264,6 +264,23 @@ a:hover { color: var(--accent); }
   transition: color 0.13s, border-color 0.13s; text-transform: uppercase;
 }
 .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---- Mermaid diagrams ---------------------------------------------------- */
+.mermaid-figure {
+  margin: 1.6em 0; padding: 22px 18px; text-align: center;
+  background: var(--bg-1); border: 1px solid var(--line-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto;
+}
+.mermaid-figure pre.mermaid {
+  margin: 0; padding: 0; border: 0; background: none;
+  line-height: normal; font-family: var(--font-body);
+}
+/* Before Mermaid.js draws (or if it can't load) keep the source unobtrusive. */
+.mermaid-figure pre.mermaid:not([data-processed]) {
+  font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-mute);
+  white-space: pre-wrap; text-align: left;
+}
+.mermaid-figure svg { max-width: 100%; height: auto; }
 .copy-btn.copied { color: var(--mint); border-color: var(--mint); }
 
 /* Rouge token palette (on dark code panel, both themes) */

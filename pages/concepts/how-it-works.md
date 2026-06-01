@@ -9,15 +9,16 @@ running app. Four pieces make that work.
 
 ## The pipeline
 
-```
- your patch.c ──clang──▶ patch.wasm ──load──▶ wasm3 interpreter
-                                                   │
-                                       host export bridge (C ABI)
-                                                   │
-                              ┌────────────────────┴───────────────────┐
-                              ▼                                          ▼
-                    call Objective-C methods                  replace methods (libffi)
-                    (NSInvocation)                            (IMP swap + trampoline)
+```mermaid
+flowchart TD
+    C["your patch.c"] -->|"clang --target=wasm32"| W["patch.wasm"]
+    W -->|load| RT["wasm3 interpreter"]
+    RT --> B["host export bridge (C ABI)"]
+    B --> CALL["call Objective-C methods<br/>(NSInvocation)"]
+    B --> REPL["replace methods (libffi)<br/>(IMP swap + trampoline)"]
+
+    style W fill:#bbf,color:#000
+    style REPL fill:#bfb,color:#000
 ```
 
 1. **Compile.** `clang --target=wasm32` compiles your patch to a freestanding
