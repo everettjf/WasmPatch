@@ -13,6 +13,7 @@
 #include <string>
 
 #include "../method/wap_objc_method.h"
+#include "../method/wap_objc_block_create.h"
 #include "wap_objc_define.h"
 #include "wap_objc_export.h"
 
@@ -212,6 +213,7 @@ void ObjcRuntime::resetLocked() {
     _loaded = false;
     clearError();
     ObjcMethod::instance().clearHooks();
+    ClearWasmBlocks();
 }
 
 void ObjcRuntime::initRuntime() {
@@ -267,6 +269,7 @@ void ObjcRuntime::initRuntime() {
     RT_LINK(new_objc_nsnumber_int);
 
     RT_LINK(invoke_block);
+    RT_LINK(create_block);
 
     RT_LINK(replace_class_method);
     RT_LINK(replace_instance_method);

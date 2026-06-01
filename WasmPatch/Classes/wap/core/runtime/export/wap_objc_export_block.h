@@ -14,6 +14,7 @@
 #include "../wap_objc_define.h"
 #include "../wap_objc_runtime.h"
 #include "../../method/wap_objc_block.h"
+#include "../../method/wap_objc_block_create.h"
 #include "../../method/wap_objc_method_signature.h"
 #include <ffi.h>
 #include <vector>
@@ -164,6 +165,28 @@ __WAP_EXPORT_FUNCTION(invoke_block_raw) {
     m3ApiGetArg (WAPObject, block)
     m3ApiGetArg (WAPArray, args)
     WAPObject result = invoke_block(block, args);
+    m3ApiReturn (result)
+}
+
+// Create an Objective-C block backed by a wasm export, to pass into Obj-C
+// methods (e.g. as a completion handler). `func_name` is a wasm export of the
+// form `WAPObject fn(WAPArray args)`; `signature` is the block's encoding
+// (e.g. "v@?@" for void(^)(id)).
+WAPObject create_block(WAPMethodName func_name, const char *signature) {
+    std::string error;
+    id block = wap::CreateWasmBlock(func_name ? func_name : "", signature ? signature : "", error);
+    if (!block) {
+        wap::EmitLog(wap::LogLevel::Error, std::string("create_block: ") + error);
+        return 0;
+    }
+    return WAPCreateObjectFromObjcValue("objc", block);
+}
+
+__WAP_EXPORT_FUNCTION(create_block_raw) {
+    m3ApiReturnType (WAPObject)
+    m3ApiGetArgMem (char*, func_name)
+    m3ApiGetArgMem (char*, signature)
+    WAPObject result = create_block(func_name, signature);
     m3ApiReturn (result)
 }
 

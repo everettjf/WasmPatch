@@ -17,6 +17,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)recordX:(double)x y:(double)y w:(double)w h:(double)h;  // 4-arg call (call_class_method_4)
 + (CGRect)recordedRect;                                         // host-side assertion hook
 
+// wasm-created block coverage: the patch hands us a block, the host stores and
+// later fires it; the block body (in wasm) calls recordBlockResult:.
++ (void)registerCompletion:(void (^)(NSString *result))block;
++ (void)fireRegisteredCompletionWith:(NSString *)value;
++ (void)recordBlockResult:(NSString *)result;
++ (nullable NSString *)recordedBlockResult;
+
 // class methods
 + (void)sayHi;
 + (void)sayWord:(NSString*)word;

@@ -42,7 +42,7 @@ This gives apps the ability to:
 | ✍️ **Author Ergonomics** | `WAP_REPLACE_*` macros (typos fail to compile), scope cleanup pools, `call_*_3/4` |
 | 🛠️ **Runtime Diagnostics** | Host log handler, strict-hook policy, structured load/runtime errors |
 | 📦 **SPM + CocoaPods** | Swift Package Manager and CocoaPods integration |
-| 🧩 **Block Callbacks** | Invoke completion handlers passed into replaced methods (`invoke_block`) |
+| 🧩 **Block Callbacks** | Invoke received blocks (`invoke_block`) and create blocks to pass into Obj-C (`create_block`) |
 | 🦅 **Swift Support** | `@objc dynamic` hooking + hookable-surface scanner — see [SWIFT.md](SWIFT.md) |
 | 🌐 **Remote Delivery** | `WAPPatchManager` — fetch, SHA-256 verify, cache, apply |
 | 🧪 **Regression Assets** | Test case bundle and fixture hosts for bridge validation |
@@ -357,7 +357,8 @@ sh TestCase/compile-testcase.sh
   handler (block) invocation, host log handler, strict-hook load policy, SPM
   support, remote delivery (`WAPPatchManager`), and Swift `@objc dynamic`
   hooking are in place and exercised end-to-end (`Tool/validate-*.sh`).
-- Creating blocks from wasm, asymmetric patch signing, and generic struct
+- Bidirectional block bridging (invoke received blocks and create blocks to
+  pass into Obj-C) is supported. Asymmetric patch signing and generic struct
   support remain open — see [ROADMAP.md](ROADMAP.md).
 
 ## Release Checklist

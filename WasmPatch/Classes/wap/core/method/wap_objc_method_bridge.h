@@ -11,10 +11,15 @@
 
 #import <Foundation/Foundation.h>
 #import "wap_objc_method_hook.h"
+#import "../runtime/wap_objc_define.h"
 
 namespace wap {
 
 void binding_objc_method(ObjcMethodHook *hook, id _self, SEL _sel, void *ret, void* args[]);
+
+// Wrap a native value (read from `arg` per the Objective-C type `encoding`)
+// into a WAPInternalObject the wasm side can consume. Defined in the bridge.
+WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void * arg);
 
 }
 
