@@ -206,8 +206,9 @@ WasmPatch/
 │   └── WasmPatch-TestCase/ # Sample host classes and wasm fixtures
 ├── Image/                  # Documentation images
 ├── Demo/                   # Demo projects
-│   ├── iOS/               # iOS demo
-│   └── macOS/             # macOS demo
+│   ├── iOS/               # iOS demo (Objective-C)
+│   ├── macOS/             # macOS demo (Objective-C)
+│   └── WasmPatch-SwiftUI/ # macOS SwiftUI app — live hot-patch of an @objc dynamic method
 └── README.md
 ```
 
