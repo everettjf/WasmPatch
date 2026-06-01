@@ -1,6 +1,7 @@
 #import "WAPPatchLoader.h"
 
 #import "WasmPatch.h"
+#import <Security/Security.h>
 
 NSErrorDomain const WAPPatchLoaderErrorDomain = @"com.wasmpatch.loader";
 NSString * const WAPPatchLoaderErrorSourceKey = @"WAPPatchLoaderErrorSource";
@@ -88,6 +89,8 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
     copy.allowReload = self.allowReload;
     copy.resetBeforeLoad = self.resetBeforeLoad;
     copy.strictHooks = self.strictHooks;
+    copy.publicKeyECBase64 = self.publicKeyECBase64;
+    copy.signatureBase64 = self.signatureBase64;
     return copy;
 }
 
@@ -105,6 +108,58 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
 
 @implementation WAPPatchLoader
 
+// Verify the ECDSA-P256 signature over `data` when the options request it.
+// Returns YES when no signature is configured (nothing to check) or when the
+// signature is valid; NO with a populated error otherwise.
++ (BOOL)verifySignatureIfNeededForData:(NSData *)data
+                               options:(WAPPatchLoaderOptions *)options
+                                source:(NSString * _Nullable)source
+                                 error:(NSError * _Nullable * _Nullable)error {
+    if (options.publicKeyECBase64.length == 0 && options.signatureBase64.length == 0) {
+        return YES; // signature checking not requested
+    }
+    if (options.publicKeyECBase64.length == 0 || options.signatureBase64.length == 0) {
+        return WAPPatchLoaderAssignError(error, WAPPatchLoaderErrorCodeSignatureInvalid,
+                                         @"Both publicKeyECBase64 and signatureBase64 are required to verify a patch.", source, nil);
+    }
+
+    NSData *keyData = [[NSData alloc] initWithBase64EncodedString:options.publicKeyECBase64 options:0];
+    NSData *sigData = [[NSData alloc] initWithBase64EncodedString:options.signatureBase64 options:0];
+    if (keyData.length == 0 || sigData.length == 0) {
+        return WAPPatchLoaderAssignError(error, WAPPatchLoaderErrorCodeSignatureInvalid,
+                                         @"Public key or signature is not valid base64.", source, nil);
+    }
+
+    NSDictionary *attrs = @{
+        (id)kSecAttrKeyType: (id)kSecAttrKeyTypeECSECPrimeRandom,
+        (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPublic,
+        (id)kSecAttrKeySizeInBits: @256,
+    };
+    CFErrorRef cfError = NULL;
+    SecKeyRef key = SecKeyCreateWithData((__bridge CFDataRef)keyData, (__bridge CFDictionaryRef)attrs, &cfError);
+    if (!key) {
+        NSString *detail = cfError ? [(__bridge NSError *)cfError localizedDescription] : @"unknown";
+        if (cfError) { CFRelease(cfError); }
+        return WAPPatchLoaderAssignError(error, WAPPatchLoaderErrorCodeSignatureInvalid,
+                                         @"Could not parse the EC public key.", source, detail);
+    }
+
+    BOOL ok = SecKeyVerifySignature(key,
+                                    kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
+                                    (__bridge CFDataRef)data,
+                                    (__bridge CFDataRef)sigData,
+                                    &cfError);
+    NSString *detail = cfError ? [(__bridge NSError *)cfError localizedDescription] : nil;
+    if (cfError) { CFRelease(cfError); }
+    CFRelease(key);
+
+    if (!ok) {
+        return WAPPatchLoaderAssignError(error, WAPPatchLoaderErrorCodeSignatureInvalid,
+                                         @"Patch signature verification failed.", source, detail ?: @"signature mismatch");
+    }
+    return YES;
+}
+
 + (BOOL)loadPatchAtPath:(NSString *)path error:(NSError * _Nullable * _Nullable)error {
     return [self loadPatchAtPath:path options:[self recommendedOptions] error:error];
 }
@@ -114,6 +169,16 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
         return WAPPatchLoaderAssignError(error, WAPPatchLoaderErrorCodeInvalidArgument, @"Patch path can not be empty.", path, nil);
     }
     WAPPatchLoaderOptions *effectiveOptions = options ?: [self recommendedOptions];
+    if (effectiveOptions.signatureBase64.length > 0 || effectiveOptions.publicKeyECBase64.length > 0) {
+        NSData *data = [NSData dataWithContentsOfFile:path];
+        if (data.length == 0) {
+            return WAPPatchLoaderAssignError(error, WAPPatchLoaderErrorCodePatchNotFound,
+                                             [NSString stringWithFormat:@"Could not read patch at path %@ for verification.", path], path, nil);
+        }
+        if (![self verifySignatureIfNeededForData:data options:effectiveOptions source:path error:error]) {
+            return NO;
+        }
+    }
     if (wap_load_file_with_options(path.fileSystemRepresentation, effectiveOptions.loadOptionsValue)) {
         return YES;
     }
@@ -141,6 +206,9 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
         return WAPPatchLoaderAssignError(error, WAPPatchLoaderErrorCodeInvalidArgument, @"Patch data can not be empty.", @"memory", nil);
     }
     WAPPatchLoaderOptions *effectiveOptions = options ?: [self recommendedOptions];
+    if (![self verifySignatureIfNeededForData:data options:effectiveOptions source:@"memory" error:error]) {
+        return NO;
+    }
     if (wap_load_data_with_options(data.bytes, (unsigned int)data.length, effectiveOptions.loadOptionsValue)) {
         return YES;
     }

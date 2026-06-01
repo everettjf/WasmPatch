@@ -45,6 +45,7 @@ This gives apps the ability to:
 | 🧩 **Block Callbacks** | Invoke received blocks (`invoke_block`) and create blocks to pass into Obj-C (`create_block`) |
 | 🦅 **Swift Support** | `@objc dynamic` hooking + hookable-surface scanner — see [SWIFT.md](SWIFT.md) |
 | 🌐 **Remote Delivery** | `WAPPatchManager` — fetch, SHA-256 verify, cache, apply |
+| 🔐 **Patch Signing** | EC P-256 / ECDSA signature verification before load (`Tool/wasmpatch sign`) |
 | 🧪 **Regression Assets** | Test case bundle and fixture hosts for bridge validation |
 
 ---
@@ -351,15 +352,40 @@ sh TestCase/compile-testcase.sh
 }];
 ```
 
+## Patch Signing
+
+SHA-256 (`expectedSHA256Hex`) proves integrity; an EC P-256 signature proves
+**authenticity** — a tampered patch can't be re-signed without the private key.
+
+```bash
+# one-time: create a signing key (keep the .pem private)
+Tool/wasmpatch keygen patch_key.pem
+
+# sign a built patch; prints publicKeyECBase64 + signatureBase64
+Tool/wasmpatch sign your_patch.wasm patch_key.pem
+```
+
+```objc
+WAPPatchLoaderOptions *options = [WAPPatchLoader recommendedOptions];
+options.publicKeyECBase64 = @"<embedded public key (uncompressed point), base64>";
+options.signatureBase64   = @"<signature delivered alongside the patch>";
+
+NSError *error = nil;
+if (![WAPPatchLoader loadPatchAtPath:path options:options error:&error] &&
+    error.code == WAPPatchLoaderErrorCodeSignatureInvalid) {
+    NSLog(@"refused: patch is not authentically signed");
+}
+```
+
 ## Current Maturity
 
 - Author ergonomics (macros, cleanup pools, CLI), struct bridging, completion-
   handler (block) invocation, host log handler, strict-hook load policy, SPM
   support, remote delivery (`WAPPatchManager`), and Swift `@objc dynamic`
   hooking are in place and exercised end-to-end (`Tool/validate-*.sh`).
-- Bidirectional block bridging (invoke received blocks and create blocks to
-  pass into Obj-C) is supported. Asymmetric patch signing and generic struct
-  support remain open — see [ROADMAP.md](ROADMAP.md).
+- Bidirectional block bridging and EC P-256 patch signing are in place.
+  Generic/arbitrary struct support (beyond the geometry set) remains open —
+  see [ROADMAP.md](ROADMAP.md).
 
 ## Release Checklist
 

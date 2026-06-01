@@ -18,6 +18,7 @@ typedef NS_ERROR_ENUM(WAPPatchLoaderErrorDomain, WAPPatchLoaderErrorCode) {
     WAPPatchLoaderErrorCodePayloadTooLarge = 5,
     WAPPatchLoaderErrorCodeSHA256Mismatch = 6,
     WAPPatchLoaderErrorCodeLoadFailed = 7,
+    WAPPatchLoaderErrorCodeSignatureInvalid = 8,
 };
 
 @interface WAPPatchLoaderOptions : NSObject <NSCopying>
@@ -29,6 +30,16 @@ typedef NS_ERROR_ENUM(WAPPatchLoaderErrorDomain, WAPPatchLoaderErrorCode) {
 /// When YES, loading fails if any replace_* call references a missing class or
 /// selector, instead of silently leaving the method unpatched.
 @property (nonatomic, assign) BOOL strictHooks;
+
+/// Base64 of an EC P-256 public key as an uncompressed point (0x04‖X‖Y, 65
+/// bytes). When set together with `signatureBase64`, the patch bytes are
+/// verified before loading; a bad/absent signature fails with
+/// WAPPatchLoaderErrorCodeSignatureInvalid. Stronger than expectedSHA256Hex:
+/// it proves authenticity, not just integrity.
+@property (nonatomic, copy, nullable) NSString *publicKeyECBase64;
+/// Base64 of the X9.62 DER ECDSA signature (SHA-256) over the patch bytes,
+/// e.g. produced by `Tool/wasmpatch sign`.
+@property (nonatomic, copy, nullable) NSString *signatureBase64;
 
 + (instancetype)recommendedOptions;
 - (WAPLoadOptions)loadOptionsValue;
