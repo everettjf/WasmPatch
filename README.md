@@ -19,12 +19,29 @@
 
 ## 🎯 What is WasmPatch?
 
-WasmPatch bridges **Objective-C** and **WebAssembly**. It compiles C code into WebAssembly modules and lets those modules call any Objective-C class or method dynamically.
+WasmPatch bridges **Objective-C** and **WebAssembly**. It compiles C code into WebAssembly modules and lets those modules call any Objective-C class or method dynamically — so you can hot-fix bugs, add features, and replace methods at runtime without shipping a new binary.
 
-This gives apps the ability to:
-- 🔧 **Hot-fix bugs** without shipping a new binary
-- ✨ **Add features** via WebAssembly payloads
-- 🔄 **Replace methods** at runtime (class and instance)
+### Capabilities at a glance
+
+**Patch & bridge**
+- 🔄 Replace **class & instance** methods at runtime; call any Obj-C method from wasm
+- 📐 Pass/return **structs by value** — `CGPoint`/`CGSize`/`CGRect`/`NSRange` *and* arbitrary structs via `alloc_struct` + field accessors
+- 🧩 **Blocks both ways** — invoke completion handlers you're handed (`invoke_block`) and create blocks to pass into Obj-C (`create_block`)
+- 🔢 Value-type bridging for strings, numbers, `BOOL`, objects, selectors, C strings
+
+**Swift support**
+- 🦅 Hook `@objc dynamic` Swift methods; module-qualified class names
+- 🔎 `Tool/scan-hookable.sh` lists a binary's hookable surface; clean Swift API via `NS_SWIFT_NAME` — see [SWIFT.md](SWIFT.md)
+
+**Authoring & tooling**
+- ✍️ `WAP_REPLACE_*` macros (a misspelled target **fails to compile**), scope cleanup pools, `call_*_3/4`
+- 🛠️ `Tool/wasmpatch` CLI — `doctor`, `build` (auto-injects `<wasmpatch.h>`, emits sha256/meta), `keygen`, `sign`
+- 📦 Integrates via **Swift Package Manager** and **CocoaPods**
+
+**Delivery & safety**
+- 🌐 `WAPPatchManager` — fetch, verify, cache, and apply remote patches
+- 🔐 **EC P-256 signature** verification (authenticity) on top of SHA-256 (integrity)
+- 🩺 Host log handler, strict-hook load policy, and structured load/runtime errors
 
 ![WasmPatch Architecture](Image/WasmPatch.png)
 
