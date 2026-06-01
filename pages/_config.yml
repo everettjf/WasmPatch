@@ -1,0 +1,6 @@
+# Jekyll configuration for the WasmPatch documentation site.
+# Built and deployed by .github/workflows/pages.yml (source: ./pages).
+title: WasmPatch
+description: WebAssembly-driven hot patching for iOS & macOS apps
+theme: jekyll-theme-cayman
+show_downloads: false
