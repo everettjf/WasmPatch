@@ -1,10 +1,8 @@
 ---
-title: Integration
+title: "Installation & integration"
+eyebrow: "Getting started"
+description: "Add WasmPatch to your app with Swift Package Manager or CocoaPods, and set up the wasm toolchain."
 ---
-
-# Integration
-
-[← Docs home](../index.md)
 
 WasmPatch ships as both a Swift Package and a CocoaPod. The runtime links
 `Foundation`, `CoreGraphics`, and `Security` automatically.

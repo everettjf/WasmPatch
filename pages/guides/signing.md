@@ -1,10 +1,8 @@
 ---
-title: Patch signing
+title: "Patch signing"
+eyebrow: "Delivery & safety"
+description: "EC P-256 keygen and signing, and load-time signature verification for authenticity."
 ---
-
-# Patch signing
-
-[← Docs home](../index.md)
 
 SHA-256 (`expectedSHA256Hex`) proves **integrity** — that the bytes didn't
 change. An EC P-256 signature proves **authenticity** — that *you* produced

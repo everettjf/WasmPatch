@@ -1,10 +1,8 @@
 ---
-title: Swift support
+title: "Swift in depth"
+eyebrow: "Writing patches"
+description: "What's hookable from Swift, module-qualified names, value/struct/block bridging, and the limits."
 ---
-
-# Swift support
-
-[← Docs home](../index.md)
 
 WasmPatch replaces methods through the **Objective-C runtime**, so a Swift
 method is reachable only when it's exposed to that runtime.
@@ -51,10 +49,10 @@ These bridge automatically in an `@objc dynamic` signature:
 | `Bool` | `BOOL` | return `0`/`1` |
 | `Int`/`Int32`/`Int64` | integer | `alloc_int32`/`alloc_int64`; return an int |
 | `Double`/`Float` | floating point | `alloc_double`/`alloc_float`; return a double |
-| `CGPoint`/`CGSize`/`CGRect`/`NSRange` | struct | see [Structs](structs.md) |
-| other structs (incl. unions/bitfields) | struct | see [Structs](structs.md) |
+| `CGPoint`/`CGSize`/`CGRect`/`NSRange` | struct | see [Structs](structs.html) |
+| other structs (incl. unions/bitfields) | struct | see [Structs](structs.html) |
 | `NSObject` subclasses | objc object | pass the `WAPObject` handle |
-| `@escaping` closures | block | see [Blocks](blocks.md) |
+| `@escaping` closures | block | see [Blocks](blocks.html) |
 
 `enum`s and `Optional`s of value types aren't specially bridged — expose an
 `@objc`-compatible surface (e.g. `NSInteger`, nullable objects) at the patch
@@ -87,5 +85,5 @@ hot-patches an `@objc dynamic` method live with Apply/Reset buttons.
 
 ## See also
 
-[Structs](structs.md) · [Blocks](blocks.md) · [Signing](signing.md) ·
-[Remote delivery](remote-delivery.md)
+[Structs](structs.html) · [Blocks](blocks.html) · [Signing](signing.html) ·
+[Remote delivery](remote-delivery.html)

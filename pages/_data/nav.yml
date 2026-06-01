@@ -1,0 +1,40 @@
+# Sidebar navigation. `url` values are site-absolute (piped through relative_url
+# in the sidebar include so the project baseurl is added).
+- title: Getting Started
+  items:
+    - { title: Overview, url: / }
+    - { title: Tutorial, url: /tutorial.html }
+    - { title: Installation & integration, url: /guides/integration.html }
+
+- title: Core concepts
+  items:
+    - { title: How it works, url: /concepts/how-it-works.html }
+    - { title: Method replacement, url: /concepts/method-replacement.html }
+    - { title: The type bridge, url: /concepts/type-bridging.html }
+
+- title: Writing patches
+  items:
+    - { title: Authoring patches, url: /guides/authoring.html }
+    - { title: Objective-C in depth, url: /guides/objc.html }
+    - { title: Swift in depth, url: /guides/swift.html }
+    - { title: Structs, unions & bitfields, url: /guides/structs.html }
+    - { title: Blocks & completion handlers, url: /guides/blocks.html }
+
+- title: Delivery & safety
+  items:
+    - { title: Remote delivery, url: /guides/remote-delivery.html }
+    - { title: Patch signing, url: /guides/signing.html }
+    - { title: Security model, url: /concepts/security.html }
+    - { title: Diagnostics, url: /guides/diagnostics.html }
+
+- title: Case studies
+  items:
+    - { title: "Obj-C: ship a crash hotfix", url: /cases/objc-hotfix.html }
+    - { title: "Swift: gate a feature", url: /cases/swift-feature.html }
+
+- title: Reference
+  items:
+    - { title: Performance & footprint, url: /concepts/performance.html }
+    - { title: FAQ & troubleshooting, url: /faq.html }
+    - { title: Comparison, url: /concepts/comparison.html }
+    - { title: Deploying these docs, url: /DEPLOY.html }

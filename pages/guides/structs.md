@@ -1,10 +1,8 @@
 ---
-title: Structs
+title: "Structs, unions & bitfields"
+eyebrow: "Writing patches"
+description: "Pass and return structs by value — geometry helpers, arbitrary structs, unions, and bitfields."
 ---
-
-# Structs
-
-[← Docs home](../index.md)
 
 Structs are passed and returned **by value**. WasmPatch builds a libffi type
 from the method's Objective-C encoding so the ABI is correct, and bridges the

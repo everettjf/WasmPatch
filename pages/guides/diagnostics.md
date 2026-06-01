@@ -1,10 +1,8 @@
 ---
-title: Diagnostics
+title: "Diagnostics"
+eyebrow: "Delivery & safety"
+description: "The host log handler, the strict-hook load policy, error codes, and load options."
 ---
-
-# Diagnostics
-
-[← Docs home](../index.md)
 
 ## Log handler
 
@@ -76,4 +74,4 @@ const char *raw = wap_last_error(); // C API
 | `allowReload` | permit loading when already loaded |
 | `resetBeforeLoad` | reset the runtime first |
 | `strictHooks` | fail load on a missing hook target |
-| `publicKeyECBase64` + `signatureBase64` | authenticity check ([Signing](signing.md)) |
+| `publicKeyECBase64` + `signatureBase64` | authenticity check ([Signing](signing.html)) |

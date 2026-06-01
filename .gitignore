@@ -6,3 +6,7 @@
 *.wasm.sig
 *.wasm.pub
 *.pem
+
+# Jekyll local build output
+pages/_site/
+pages/.jekyll-cache/

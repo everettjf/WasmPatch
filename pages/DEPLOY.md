@@ -1,10 +1,8 @@
 ---
-title: Deploying these docs
+title: "Deploying these docs"
+eyebrow: "Reference"
+description: "Publish this folder to GitHub Pages — three approaches, local preview, and custom domains."
 ---
-
-# Deploying the docs to GitHub Pages
-
-[← Docs home](index.md)
 
 This `pages/` folder is a self-contained [Jekyll](https://jekyllrb.com/) site
 (Markdown + `_config.yml`, theme `jekyll-theme-cayman`). There are three ways to

@@ -1,0 +1,25 @@
+---
+layout: default
+---
+<main class="doc">
+  <article class="doc__article">
+    <header class="doc__header">
+      {% if page.eyebrow %}<p class="doc__eyebrow">{{ page.eyebrow }}</p>{% endif %}
+      <h1>{{ page.title }}</h1>
+      {% if page.description %}<p class="doc__lede">{{ page.description }}</p>{% endif %}
+    </header>
+
+    <div class="doc__body" data-doc-body>
+      {{ content }}
+    </div>
+
+    <footer class="doc__footer">
+      <a class="doc__edit" href="{{ site.github_repo }}/edit/master/pages/{{ page.path }}" target="_blank" rel="noopener">Edit this page on GitHub ↗</a>
+    </footer>
+  </article>
+
+  <aside class="toc" data-toc aria-label="On this page">
+    <p class="toc__title">On this page</p>
+    <nav class="toc__list" data-toc-list></nav>
+  </aside>
+</main>
