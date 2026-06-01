@@ -1,0 +1,278 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9000000000000000000001 /* WasmPatchDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000000000000000000001 /* WasmPatchDemoApp.swift */; };
+		9000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000000000000000000002 /* ContentView.swift */; };
+		9000000000000000000003 /* DemoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000000000000000000003 /* DemoService.swift */; };
+		9000000000000000000004 /* PatchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8000000000000000000004 /* PatchController.swift */; };
+		9000000000000000000005 /* greeting.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 8000000000000000000005 /* greeting.wasm */; };
+		900000000000000000000F /* WasmPatch in Frameworks */ = {isa = PBXBuildFile; productRef = B000000000000000000001 /* WasmPatch */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4000000000000000000001 /* WasmPatch-SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WasmPatch-SwiftUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8000000000000000000001 /* WasmPatchDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WasmPatchDemoApp.swift; sourceTree = "<group>"; };
+		8000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8000000000000000000003 /* DemoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoService.swift; sourceTree = "<group>"; };
+		8000000000000000000004 /* PatchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchController.swift; sourceTree = "<group>"; };
+		8000000000000000000005 /* greeting.wasm */ = {isa = PBXFileReference; lastKnownFileType = file; path = greeting.wasm; sourceTree = "<group>"; };
+		8000000000000000000006 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8000000000000000000007 /* WasmPatch_SwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WasmPatch_SwiftUI.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				900000000000000000000F /* WasmPatch in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				2000000000000000000003 /* WasmPatch-SwiftUI */,
+				2000000000000000000002 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2000000000000000000002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4000000000000000000001 /* WasmPatch-SwiftUI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2000000000000000000003 /* WasmPatch-SwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				8000000000000000000001 /* WasmPatchDemoApp.swift */,
+				8000000000000000000002 /* ContentView.swift */,
+				8000000000000000000003 /* DemoService.swift */,
+				8000000000000000000004 /* PatchController.swift */,
+				8000000000000000000005 /* greeting.wasm */,
+				8000000000000000000006 /* Info.plist */,
+				8000000000000000000007 /* WasmPatch_SwiftUI.entitlements */,
+			);
+			path = "WasmPatch-SwiftUI";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3000000000000000000001 /* WasmPatch-SwiftUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5000000000000000000002 /* Build configuration list for PBXNativeTarget "WasmPatch-SwiftUI" */;
+			buildPhases = (
+				7000000000000000000001 /* Sources */,
+				7000000000000000000002 /* Frameworks */,
+				7000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "WasmPatch-SwiftUI";
+			packageProductDependencies = (
+				B000000000000000000001 /* WasmPatch */,
+			);
+			productName = "WasmPatch-SwiftUI";
+			productReference = 4000000000000000000001 /* WasmPatch-SwiftUI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					3000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 5000000000000000000001 /* Build configuration list for PBXProject "WasmPatch-SwiftUI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2000000000000000000001;
+			packageReferences = (
+				A000000000000000000001 /* XCLocalSwiftPackageReference "../.." */,
+			);
+			productRefGroup = 2000000000000000000002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3000000000000000000001 /* WasmPatch-SwiftUI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9000000000000000000005 /* greeting.wasm in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9000000000000000000001 /* WasmPatchDemoApp.swift in Sources */,
+				9000000000000000000002 /* ContentView.swift in Sources */,
+				9000000000000000000003 /* DemoService.swift in Sources */,
+				9000000000000000000004 /* PatchController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		6000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "WasmPatch-SwiftUI/WasmPatch_SwiftUI.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGNING_REQUIRED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "WasmPatch-SwiftUI/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.wasmpatch.swiftui-demo";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		6000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "WasmPatch-SwiftUI/WasmPatch_SwiftUI.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGNING_REQUIRED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "WasmPatch-SwiftUI/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.wasmpatch.swiftui-demo";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5000000000000000000001 /* Build configuration list for PBXProject "WasmPatch-SwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6000000000000000000001 /* Debug */,
+				6000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5000000000000000000002 /* Build configuration list for PBXNativeTarget "WasmPatch-SwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6000000000000000000003 /* Debug */,
+				6000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A000000000000000000001 /* XCLocalSwiftPackageReference "../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../..";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B000000000000000000001 /* WasmPatch */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WasmPatch;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1000000000000000000001 /* Project object */;
+}
