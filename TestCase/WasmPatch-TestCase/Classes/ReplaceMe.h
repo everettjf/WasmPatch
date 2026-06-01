@@ -6,10 +6,18 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ReplaceMe : NSObject
+
+// struct bridging coverage
++ (CGRect)classBounds;              // replaced to return a known rect
+- (int32_t)sumOfRect:(CGRect)rect;  // replaced; reads the struct argument
+
+// block bridging coverage: replaced; the patch invokes the completion handler
+- (void)fetchWithCompletion:(void (^)(NSString *result))completion;
 
 + (void)request;
 + (void)requestFrom:(NSString*)from to:(NSString*)to;

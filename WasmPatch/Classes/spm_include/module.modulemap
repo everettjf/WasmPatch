@@ -1,0 +1,9 @@
+// Explicit module map for SwiftPM. References the real public headers (one
+// directory up, in Classes/) so Swift sees the Objective-C API without
+// pulling the internal wap/** headers into the module.
+module WasmPatch {
+    header "../WasmPatch.h"
+    header "../WAPPatchLoader.h"
+    header "../WAPPatchManager.h"
+    export *
+}

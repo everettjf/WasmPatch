@@ -6,10 +6,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CallMe : NSObject
+
+// struct bridging coverage (called from the patch)
++ (CGRect)doubleRect:(CGRect)rect;                              // struct arg in, struct return out
++ (void)recordX:(double)x y:(double)y w:(double)w h:(double)h;  // 4-arg call (call_class_method_4)
++ (CGRect)recordedRect;                                         // host-side assertion hook
 
 // class methods
 + (void)sayHi;

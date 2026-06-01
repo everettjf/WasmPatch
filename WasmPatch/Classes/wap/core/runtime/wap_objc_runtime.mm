@@ -18,6 +18,30 @@
 
 namespace wap {
 
+namespace {
+std::mutex g_logMutex;
+LogHandler g_logHandler = nullptr;
+}
+
+void SetLogHandler(LogHandler handler) {
+    std::lock_guard<std::mutex> lock(g_logMutex);
+    g_logHandler = handler;
+}
+
+void EmitLog(LogLevel level, const std::string & message) {
+    LogHandler handler = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(g_logMutex);
+        handler = g_logHandler;
+    }
+    if (handler) {
+        handler((int)level, message.c_str());
+        return;
+    }
+    const char *prefix = level == LogLevel::Error ? "WAP Error" : (level == LogLevel::Warning ? "WAP Warning" : "WAP");
+    NSLog(@"[%s] %s", prefix, message.c_str());
+}
+
 ObjcRuntime & ObjcRuntime::instance() {
     static ObjcRuntime obj;
     return obj;
@@ -55,7 +79,7 @@ bool ObjcRuntime::load(const std::string & path, const LoadOptions & options) {
     if (!validateLoadLocked(path, buffer.data(), buffer.size(), options)) {
         return false;
     }
-    return loadBufferLocked(buffer.data(), buffer.size());
+    return loadBufferLocked(buffer.data(), buffer.size(), options.strictHooks);
 }
 
 bool ObjcRuntime::loadData(const void * bytes, size_t size) {
@@ -78,7 +102,7 @@ bool ObjcRuntime::loadData(const void * bytes, size_t size, const LoadOptions & 
     if (!validateLoadLocked("memory", bytes, size, options)) {
         return false;
     }
-    return loadBufferLocked(bytes, size);
+    return loadBufferLocked(bytes, size, options.strictHooks);
 }
 
 void ObjcRuntime::reset() {
@@ -116,20 +140,34 @@ void ObjcRuntime::ensureRuntime() {
     }
 }
 
-bool ObjcRuntime::loadBufferLocked(const void * bytes, size_t size) {
+bool ObjcRuntime::loadBufferLocked(const void * bytes, size_t size, bool strictHooks) {
     ensureRuntime();
     bool result = _runtime->loadData(bytes, size);
     if (!result) {
         setError(_runtime->lastError());
         return false;
     }
-    
+
     initRuntime();
-    
+
+    // Forget hook diagnostics from any earlier load so the summary below only
+    // reflects this patch.
+    ObjcMethod::instance().clearHookErrors();
+
     if (!_runtime->call("entry")) {
         setError(_runtime->lastError());
         return false;
     }
+
+    if (ObjcMethod::instance().hadHookErrors()) {
+        const std::string summary = ObjcMethod::instance().hookErrorSummary();
+        EmitLog(LogLevel::Error, std::string("patch load: ") + summary);
+        if (strictHooks) {
+            setError(std::string("load rejected by policy: ") + summary);
+            return false;
+        }
+    }
+
     _loaded = true;
     clearError();
     return true;
@@ -188,30 +226,48 @@ void ObjcRuntime::initRuntime() {
     RT_LINK(alloc_float);
     RT_LINK(alloc_double);
     RT_LINK(alloc_string);
-    
+
+    RT_LINK(alloc_cgpoint);
+    RT_LINK(alloc_cgsize);
+    RT_LINK(alloc_cgrect);
+    RT_LINK(cgpoint_get_x);
+    RT_LINK(cgpoint_get_y);
+    RT_LINK(cgsize_get_width);
+    RT_LINK(cgsize_get_height);
+    RT_LINK(cgrect_get_x);
+    RT_LINK(cgrect_get_y);
+    RT_LINK(cgrect_get_width);
+    RT_LINK(cgrect_get_height);
+
     RT_LINK(print_object);
     RT_LINK(print_string);
     RT_LINK(dealloc_object);
-    
+
     RT_LINK(alloc_array);
     RT_LINK(dealloc_array);
     RT_LINK(append_array);
     RT_LINK(get_array_size);
     RT_LINK(get_array_item);
-    
+
     RT_LINK(call_class_method_param);
     RT_LINK(call_class_method_0);
     RT_LINK(call_class_method_1);
     RT_LINK(call_class_method_2);
-    
+    RT_LINK(call_class_method_3);
+    RT_LINK(call_class_method_4);
+
     RT_LINK(call_instance_method_param);
     RT_LINK(call_instance_method_0);
     RT_LINK(call_instance_method_1);
     RT_LINK(call_instance_method_2);
-    
+    RT_LINK(call_instance_method_3);
+    RT_LINK(call_instance_method_4);
+
     RT_LINK(new_objc_nsstring);
     RT_LINK(new_objc_nsnumber_int);
-    
+
+    RT_LINK(invoke_block);
+
     RT_LINK(replace_class_method);
     RT_LINK(replace_instance_method);
 }

@@ -14,6 +14,8 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <string>
+#include <vector>
 
 namespace wap {
 
@@ -21,12 +23,18 @@ namespace wap {
 class ObjcMethod {
 public:
     static ObjcMethod & instance();
-    
+
     void addHook(ObjcMethodHookPtr hook);
     void clearHooks();
-    
+
+    // Diagnostics for hooks attempted since the last clearHookErrors().
+    bool hadHookErrors();
+    std::string hookErrorSummary();
+    void clearHookErrors();
+
 private:
     std::list<ObjcMethodHookPtr> hooks;
+    std::vector<std::string> hookErrors;
     std::mutex mutex;
 };
 

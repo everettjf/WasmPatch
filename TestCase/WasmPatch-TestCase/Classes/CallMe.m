@@ -7,7 +7,23 @@
 
 #import "CallMe.h"
 
+static CGRect gRecordedRect;
+
 @implementation CallMe
+
+// struct bridging coverage
++ (CGRect)doubleRect:(CGRect)rect {
+    return CGRectMake(rect.origin.x * 2, rect.origin.y * 2, rect.size.width * 2, rect.size.height * 2);
+}
+
++ (void)recordX:(double)x y:(double)y w:(double)w h:(double)h {
+    gRecordedRect = CGRectMake(x, y, w, h);
+    NSLog(@"+ CallMe recordX:%.2f y:%.2f w:%.2f h:%.2f", x, y, w, h);
+}
+
++ (CGRect)recordedRect {
+    return gRecordedRect;
+}
 
 // class methods
 + (void)sayHi {

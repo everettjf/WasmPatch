@@ -23,7 +23,14 @@
     NSString *autotest = NSProcessInfo.processInfo.environment[@"WASMPATCH_AUTOTEST"];
     if ([autotest isEqualToString:@"1"]) {
         NSString *message = nil;
-        BOOL ok = [TestRunner runValidation:scriptBundlePath errorMessage:&message];
+        NSString *managerURL = NSProcessInfo.processInfo.environment[@"WASMPATCH_MANAGER_URL"];
+        NSString *managerSHA = NSProcessInfo.processInfo.environment[@"WASMPATCH_MANAGER_SHA"];
+        BOOL ok;
+        if (managerURL.length > 0) {
+            ok = [TestRunner runManagerValidationWithURL:managerURL sha256:managerSHA errorMessage:&message];
+        } else {
+            ok = [TestRunner runValidation:scriptBundlePath errorMessage:&message];
+        }
         fprintf(stderr, "%s\n", ok ? "WASMPATCH_AUTOTEST_PASS" : "WASMPATCH_AUTOTEST_FAIL");
         if (!ok && message.length > 0) {
             fprintf(stderr, "%s\n", message.UTF8String);

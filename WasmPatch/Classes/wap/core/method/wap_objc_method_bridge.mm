@@ -8,6 +8,7 @@
 
 #include "wap_objc_method_bridge.h"
 #include "wap_objc_define.h"
+#include "wap_objc_struct.h"
 #include "../runtime/wap_objc_runtime.h"
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -190,6 +191,22 @@ static void write_replacement_result(ObjcMethodHook *hook, void *ret, const char
             }
             return;
         }
+        case '{': {
+            StructKind kind = StructKindFromEncoding(returnEncoding);
+            if (kind == StructKind::None) {
+                call_replacement<uint32_t>(hook, parameters, parameterCount, nullptr);
+                return;
+            }
+            uint64_t value = 0;
+            if (call_replacement<uint64_t>(hook, parameters, parameterCount, &value) && value != 0) {
+                WAPInternalObject *object = GetInternalObject((WAPObject)value);
+                if (object) {
+                    StructUnwrapBytes(kind, object->value, ret);
+                    delete object;
+                }
+            }
+            return;
+        }
         default: {
             call_replacement<uint32_t>(hook, parameters, parameterCount, nullptr);
             return;
@@ -334,8 +351,16 @@ WAPInternalObject* CreateObjectFromObjcTypeEncoding(const char * encoding, void 
             break;
         }
         case '{': {
-            // // http://www.chiark.greenend.org.uk/doc/libffi-dev/html/Type-Example.html
-            // todo : struct
+            // libffi hands struct arguments to the closure as a pointer to the
+            // live struct value. Wrap the bytes in an NSValue so the patch can
+            // read fields back with the cg*_get_* accessors.
+            StructKind kind = StructKindFromEncoding(c);
+            if (kind != StructKind::None && arg) {
+                NSValue *boxed = StructWrapBytes(kind, arg);
+                if (boxed) {
+                    result = WAPInternalObject::ObjcValue(StructTypeTag(kind), boxed);
+                }
+            }
             break;
         }
         default: {

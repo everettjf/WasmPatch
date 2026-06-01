@@ -9,6 +9,20 @@
 
 @implementation ReplaceMe
 
++ (CGRect)classBounds {
+    return CGRectZero; // replaced by the patch
+}
+
+- (int32_t)sumOfRect:(CGRect)rect {
+    return -1; // replaced by the patch
+}
+
+- (void)fetchWithCompletion:(void (^)(NSString *result))completion {
+    if (completion) {
+        completion(@"native"); // replaced by the patch to call back "from-wasm-block"
+    }
+}
+
 + (void)request {
     NSLog(@"+ ReplaceMe request");
 }

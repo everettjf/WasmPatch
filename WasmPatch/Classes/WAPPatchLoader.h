@@ -26,6 +26,9 @@ typedef NS_ERROR_ENUM(WAPPatchLoaderErrorDomain, WAPPatchLoaderErrorCode) {
 @property (nonatomic, copy, nullable) NSString *expectedSHA256Hex;
 @property (nonatomic, assign) BOOL allowReload;
 @property (nonatomic, assign) BOOL resetBeforeLoad;
+/// When YES, loading fails if any replace_* call references a missing class or
+/// selector, instead of silently leaving the method unpatched.
+@property (nonatomic, assign) BOOL strictHooks;
 
 + (instancetype)recommendedOptions;
 - (WAPLoadOptions)loadOptionsValue;
@@ -39,12 +42,16 @@ typedef NS_ERROR_ENUM(WAPPatchLoaderErrorDomain, WAPPatchLoaderErrorCode) {
 + (BOOL)loadPatchAtPath:(NSString *)path options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error;
 + (BOOL)loadPatchData:(NSData *)data error:(NSError * _Nullable * _Nullable)error;
 + (BOOL)loadPatchData:(NSData *)data options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error;
-+ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle error:(NSError * _Nullable * _Nullable)error;
-+ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error;
++ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NAME(loadPatch(named:inBundle:));
++ (BOOL)loadPatchNamed:(NSString *)name inBundle:(NSBundle *)bundle options:(WAPPatchLoaderOptions *)options error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NAME(loadPatch(named:inBundle:options:));
 + (WAPPatchLoaderOptions *)recommendedOptions;
 + (BOOL)isLoaded;
 + (NSString * _Nullable)lastErrorMessage;
 + (void)reset;
+
+/// Route WasmPatch runtime diagnostics to a block. Levels: 0 = info, 1 = warning,
+/// 2 = error. Pass nil to restore the default (NSLog) sink.
++ (void)setLogHandler:(void (^ _Nullable)(NSInteger level, NSString *message))handler;
 
 @end
 

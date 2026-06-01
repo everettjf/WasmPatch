@@ -1,141 +1,292 @@
 (module $objc.wasm
   (type (;0;) (func (param i32) (result i32)))
   (type (;1;) (func (param i32) (result i64)))
-  (type (;2;) (func (param i32 i32) (result i64)))
-  (type (;3;) (func (param i32 i32 i64) (result i64)))
-  (type (;4;) (func (param i64) (result i32)))
-  (type (;5;) (func (param i32 i32 i64 i64) (result i64)))
-  (type (;6;) (func (param i64 i32) (result i64)))
-  (type (;7;) (func (param i64 i32 i64) (result i64)))
-  (type (;8;) (func (param i64 i32 i64 i64) (result i64)))
-  (type (;9;) (func (param i32 i32 i32) (result i32)))
-  (type (;10;) (func (result i64)))
-  (type (;11;) (func (param i64 i64) (result i32)))
-  (type (;12;) (func (param i64) (result i64)))
-  (type (;13;) (func (param f32) (result i64)))
+  (type (;2;) (func (param f64 f64 f64 f64) (result i64)))
+  (type (;3;) (func (param i64 i32) (result i64)))
+  (type (;4;) (func (param i64) (result f64)))
+  (type (;5;) (func (result i64)))
+  (type (;6;) (func (param i64 i64) (result i32)))
+  (type (;7;) (func (param i64 i64) (result i64)))
+  (type (;8;) (func (param i64) (result i32)))
+  (type (;9;) (func (param i32 i32) (result i64)))
+  (type (;10;) (func (param i32 i32 i64) (result i64)))
+  (type (;11;) (func (param i32 i32 i64 i64) (result i64)))
+  (type (;12;) (func (param i32 i32 i32) (result i32)))
+  (type (;13;) (func (param i32 i32 i64 i64 i64 i64) (result i64)))
   (type (;14;) (func (param f64) (result i64)))
-  (type (;15;) (func))
-  (type (;16;) (func (param i64 i32) (result i32)))
-  (type (;17;) (func (param i64 i32 i64) (result i32)))
-  (type (;18;) (func (param i64 i32) (result f64)))
-  (type (;19;) (func (result i32)))
+  (type (;15;) (func (param i64) (result i64)))
+  (type (;16;) (func (param f32) (result i64)))
+  (type (;17;) (func))
+  (type (;18;) (func (param i64 i32) (result i32)))
+  (type (;19;) (func (param i64 i32 i64) (result i32)))
+  (type (;20;) (func (param i64 i32) (result f64)))
+  (type (;21;) (func (result i32)))
   (import "env" "print_string" (func $print_string (type 0)))
   (import "env" "new_objc_nsstring" (func $new_objc_nsstring (type 1)))
   (import "env" "alloc_string" (func $alloc_string (type 1)))
-  (import "env" "call_class_method_0" (func $call_class_method_0 (type 2)))
-  (import "env" "call_class_method_1" (func $call_class_method_1 (type 3)))
-  (import "env" "dealloc_object" (func $dealloc_object (type 4)))
-  (import "env" "call_class_method_2" (func $call_class_method_2 (type 5)))
+  (import "env" "alloc_cgrect" (func $alloc_cgrect (type 2)))
+  (import "env" "get_array_item" (func $get_array_item (type 3)))
+  (import "env" "cgrect_get_x" (func $cgrect_get_x (type 4)))
+  (import "env" "cgrect_get_y" (func $cgrect_get_y (type 4)))
+  (import "env" "cgrect_get_width" (func $cgrect_get_width (type 4)))
+  (import "env" "cgrect_get_height" (func $cgrect_get_height (type 4)))
+  (import "env" "alloc_array" (func $alloc_array (type 5)))
+  (import "env" "append_array" (func $append_array (type 6)))
+  (import "env" "invoke_block" (func $invoke_block (type 7)))
+  (import "env" "dealloc_array" (func $dealloc_array (type 8)))
+  (import "env" "call_class_method_0" (func $call_class_method_0 (type 9)))
+  (import "env" "call_class_method_1" (func $call_class_method_1 (type 10)))
+  (import "env" "call_class_method_2" (func $call_class_method_2 (type 11)))
   (import "env" "alloc_objc_class" (func $alloc_objc_class (type 1)))
-  (import "env" "call_instance_method_0" (func $call_instance_method_0 (type 6)))
-  (import "env" "call_instance_method_1" (func $call_instance_method_1 (type 7)))
-  (import "env" "call_instance_method_2" (func $call_instance_method_2 (type 8)))
-  (import "env" "replace_class_method" (func $replace_class_method (type 9)))
-  (import "env" "replace_instance_method" (func $replace_instance_method (type 9)))
-  (import "env" "print_object" (func $print_object (type 4)))
-  (import "env" "new_objc_nsnumber_int" (func $new_objc_nsnumber_int (type 1)))
-  (import "env" "alloc_array" (func $alloc_array (type 10)))
-  (import "env" "append_array" (func $append_array (type 11)))
-  (import "env" "alloc_int32" (func $alloc_int32 (type 1)))
-  (import "env" "alloc_int64" (func $alloc_int64 (type 12)))
-  (import "env" "alloc_float" (func $alloc_float (type 13)))
+  (import "env" "call_instance_method_0" (func $call_instance_method_0 (type 3)))
+  (import "env" "dealloc_object" (func $dealloc_object (type 8)))
+  (import "env" "replace_class_method" (func $replace_class_method (type 12)))
+  (import "env" "replace_instance_method" (func $replace_instance_method (type 12)))
+  (import "env" "call_class_method_4" (func $call_class_method_4 (type 13)))
   (import "env" "alloc_double" (func $alloc_double (type 14)))
-  (import "env" "call_class_method_param" (func $call_class_method_param (type 3)))
-  (import "env" "dealloc_array" (func $dealloc_array (type 4)))
-  (func $__wasm_call_ctors (type 15))
-  (func $my_class_ReplaceMe_request (type 16) (param i64 i32) (result i32)
-    i32.const 1164
+  (import "env" "print_object" (func $print_object (type 8)))
+  (import "env" "new_objc_nsnumber_int" (func $new_objc_nsnumber_int (type 1)))
+  (import "env" "alloc_int32" (func $alloc_int32 (type 1)))
+  (import "env" "alloc_int64" (func $alloc_int64 (type 15)))
+  (import "env" "alloc_float" (func $alloc_float (type 16)))
+  (import "env" "call_class_method_param" (func $call_class_method_param (type 10)))
+  (func $__wasm_call_ctors (type 17))
+  (func $my_class_ReplaceMe_request (type 18) (param i64 i32) (result i32)
+    i32.const 65676
     call $print_string
     drop
     i32.const 0)
-  (func $my_class_ReplaceMe_requestfromto (type 17) (param i64 i32 i64) (result i32)
-    i32.const 1890
+  (func $my_class_ReplaceMe_requestfromto (type 19) (param i64 i32 i64) (result i32)
+    i32.const 66521
     call $print_string
     drop
     i32.const 0)
-  (func $my_instance_ReplaceMe_request (type 16) (param i64 i32) (result i32)
-    i32.const 1135
+  (func $my_instance_ReplaceMe_request (type 18) (param i64 i32) (result i32)
+    i32.const 65647
     call $print_string
     drop
     i32.const 0)
-  (func $my_instance_ReplaceMe_requestfromto (type 17) (param i64 i32 i64) (result i32)
-    i32.const 1846
+  (func $my_instance_ReplaceMe_requestfromto (type 19) (param i64 i32 i64) (result i32)
+    i32.const 66477
     call $print_string
     drop
     i32.const 0)
-  (func $my_class_ReplaceMe_classtoken (type 6) (param i64 i32) (result i64)
-    i32.const 1458
+  (func $my_class_ReplaceMe_classtoken (type 3) (param i64 i32) (result i64)
+    i32.const 66045
     call $new_objc_nsstring)
-  (func $my_class_ReplaceMe_classmagicnumber (type 16) (param i64 i32) (result i32)
+  (func $my_class_ReplaceMe_classmagicnumber (type 18) (param i64 i32) (result i32)
     i32.const 42)
-  (func $my_class_ReplaceMe_classfeatureenabled (type 16) (param i64 i32) (result i32)
+  (func $my_class_ReplaceMe_classfeatureenabled (type 18) (param i64 i32) (result i32)
     i32.const 1)
-  (func $my_class_ReplaceMe_classscore (type 18) (param i64 i32) (result f64)
+  (func $my_class_ReplaceMe_classscore (type 20) (param i64 i32) (result f64)
     f64.const 0x1.3p+3 (;=9.5;))
-  (func $my_class_ReplaceMe_classcstring (type 6) (param i64 i32) (result i64)
-    i32.const 1624
+  (func $my_class_ReplaceMe_classcstring (type 3) (param i64 i32) (result i64)
+    i32.const 66255
     call $alloc_string)
-  (func $my_instance_ReplaceMe_instancetoken (type 6) (param i64 i32) (result i64)
-    i32.const 1479
+  (func $my_instance_ReplaceMe_instancetoken (type 3) (param i64 i32) (result i64)
+    i32.const 66066
     call $new_objc_nsstring)
-  (func $my_instance_ReplaceMe_instancemagicnumber (type 16) (param i64 i32) (result i32)
+  (func $my_instance_ReplaceMe_instancemagicnumber (type 18) (param i64 i32) (result i32)
     i32.const 43)
-  (func $my_instance_ReplaceMe_instancefeatureenabled (type 16) (param i64 i32) (result i32)
+  (func $my_instance_ReplaceMe_instancefeatureenabled (type 18) (param i64 i32) (result i32)
     i32.const 1)
-  (func $my_instance_ReplaceMe_instancescore (type 18) (param i64 i32) (result f64)
+  (func $my_instance_ReplaceMe_instancescore (type 20) (param i64 i32) (result f64)
     f64.const 0x1.18p+3 (;=8.75;))
-  (func $my_instance_ReplaceMe_instancecstring (type 6) (param i64 i32) (result i64)
-    i32.const 1663
+  (func $my_instance_ReplaceMe_instancecstring (type 3) (param i64 i32) (result i64)
+    i32.const 66294
     call $alloc_string)
-  (func $entry (type 19) (result i32)
+  (func $my_class_ReplaceMe_classbounds (type 3) (param i64 i32) (result i64)
+    f64.const 0x1p+0 (;=1;)
+    f64.const 0x1p+1 (;=2;)
+    f64.const 0x1.8p+1 (;=3;)
+    f64.const 0x1p+2 (;=4;)
+    call $alloc_cgrect)
+  (func $my_instance_ReplaceMe_sumofrect (type 19) (param i64 i32 i64) (result i32)
+    local.get 2
+    i32.const 0
+    call $get_array_item
+    local.tee 2
+    call $cgrect_get_x
+    local.get 2
+    call $cgrect_get_y
+    f64.add
+    local.get 2
+    call $cgrect_get_width
+    f64.add
+    local.get 2
+    call $cgrect_get_height
+    f64.add
+    i32.trunc_sat_f64_s)
+  (func $my_instance_ReplaceMe_fetch (type 19) (param i64 i32 i64) (result i32)
+    (local i64)
+    local.get 2
+    i32.const 0
+    call $get_array_item
+    local.set 3
+    call $alloc_array
+    local.tee 2
+    i32.const 66135
+    call $new_objc_nsstring
+    call $append_array
+    drop
+    local.get 3
+    local.get 2
+    call $invoke_block
+    drop
+    local.get 2
+    call $dealloc_array
+    drop
+    i32.const 0)
+  (func $entry (type 21) (result i32)
     (local i64 i64 i64)
-    i32.const 1934
-    i32.const 1548
+    i32.const 66565
+    i32.const 66151
     call $call_class_method_0
     drop
-    i32.const 1934
-    i32.const 2126
-    i32.const 1528
+    i32.const 66565
+    i32.const 66816
+    i32.const 66115
     call $new_objc_nsstring
     local.tee 0
     call $call_class_method_1
     drop
-    local.get 0
-    call $dealloc_object
-    drop
-    i32.const 1934
-    i32.const 2112
-    i32.const 1047
-    call $new_objc_nsstring
-    local.tee 0
-    i32.const 1024
+    i32.const 66565
+    i32.const 66802
+    i32.const 65559
     call $new_objc_nsstring
     local.tee 1
+    i32.const 65536
+    call $new_objc_nsstring
+    local.tee 2
     call $call_class_method_2
     drop
-    local.get 0
+    local.get 2
     call $dealloc_object
     drop
     local.get 1
     call $dealloc_object
     drop
-    i32.const 1934
+    local.get 0
+    call $dealloc_object
+    drop
+    i32.const 66565
     call $alloc_objc_class
     local.tee 0
-    i32.const 1548
+    i32.const 66151
     call $call_instance_method_0
     drop
     local.get 0
     call $dealloc_object
     drop
-    i32.const 1934
-    call $alloc_objc_class
-    local.tee 0
-    i32.const 2126
-    i32.const 1528
-    call $new_objc_nsstring
+    i32.const 66572
+    i32.const 65697
+    i32.const 65590
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 66737
+    i32.const 65910
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 66090
+    i32.const 65979
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 65873
+    i32.const 65795
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 66671
+    i32.const 66587
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 66452
+    i32.const 66386
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 66334
+    i32.const 66185
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 65783
+    i32.const 65752
+    call $replace_class_method
+    drop
+    i32.const 66572
+    i32.const 65697
+    i32.const 65617
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 66737
+    i32.const 65943
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 66101
+    i32.const 66009
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 65890
+    i32.const 65831
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 66691
+    i32.const 66626
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 66463
+    i32.const 66416
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 66347
+    i32.const 66217
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 66714
+    i32.const 65720
+    call $replace_instance_method
+    drop
+    i32.const 66572
+    i32.const 66753
+    i32.const 66157
+    call $replace_instance_method
+    drop
+    i32.const 66565
+    i32.const 66774
+    i32.const 66565
+    i32.const 66725
+    f64.const 0x1p+0 (;=1;)
+    f64.const 0x1p+1 (;=2;)
+    f64.const 0x1.8p+1 (;=3;)
+    f64.const 0x1p+2 (;=4;)
+    call $alloc_cgrect
     local.tee 1
-    call $call_instance_method_1
+    call $call_class_method_1
+    local.tee 0
+    call $cgrect_get_x
+    call $alloc_double
+    local.get 0
+    call $cgrect_get_y
+    call $alloc_double
+    local.get 0
+    call $cgrect_get_width
+    call $alloc_double
+    local.get 0
+    call $cgrect_get_height
+    call $alloc_double
+    call $call_class_method_4
     drop
     local.get 1
     call $dealloc_object
@@ -143,104 +294,13 @@
     local.get 0
     call $dealloc_object
     drop
-    i32.const 1934
-    call $alloc_objc_class
-    local.tee 0
-    i32.const 2112
-    i32.const 1047
-    call $new_objc_nsstring
-    local.tee 1
-    i32.const 1024
-    call $new_objc_nsstring
-    local.tee 2
-    call $call_instance_method_2
-    drop
-    local.get 1
-    call $dealloc_object
-    drop
-    local.get 2
-    call $dealloc_object
-    drop
-    local.get 0
-    call $dealloc_object
-    drop
-    i32.const 1941
-    i32.const 1185
-    i32.const 1078
-    call $replace_class_method
-    drop
-    i32.const 1941
-    i32.const 2083
-    i32.const 1323
-    call $replace_class_method
-    drop
-    i32.const 1941
-    i32.const 1503
-    i32.const 1392
-    call $replace_class_method
-    drop
-    i32.const 1941
-    i32.const 1286
-    i32.const 1208
-    call $replace_class_method
-    drop
-    i32.const 1941
-    i32.const 2040
-    i32.const 1956
-    call $replace_class_method
-    drop
-    i32.const 1941
-    i32.const 1821
-    i32.const 1755
-    call $replace_class_method
-    drop
-    i32.const 1941
-    i32.const 1703
-    i32.const 1554
-    call $replace_class_method
-    drop
-    i32.const 1941
-    i32.const 1185
-    i32.const 1105
-    call $replace_instance_method
-    drop
-    i32.const 1941
-    i32.const 2083
-    i32.const 1356
-    call $replace_instance_method
-    drop
-    i32.const 1941
-    i32.const 1514
-    i32.const 1422
-    call $replace_instance_method
-    drop
-    i32.const 1941
-    i32.const 1303
-    i32.const 1244
-    call $replace_instance_method
-    drop
-    i32.const 1941
-    i32.const 2060
-    i32.const 1995
-    call $replace_instance_method
-    drop
-    i32.const 1941
-    i32.const 1832
-    i32.const 1785
-    call $replace_instance_method
-    drop
-    i32.const 1941
-    i32.const 1716
-    i32.const 1586
-    call $replace_instance_method
-    drop
-    i32.const 1065
+    i32.const 65577
     call $print_string
     drop
-    i32.const 1951
+    i32.const 66582
     call $new_objc_nsstring
     local.set 0
-    i32.const 1746
+    i32.const 66377
     call $new_objc_nsstring
     local.set 1
     local.get 0
@@ -285,26 +345,26 @@
     call $append_array
     drop
     local.get 0
-    i32.const 1193
+    i32.const 65705
     call $new_objc_nsstring
     call $append_array
     drop
     local.get 0
-    i32.const 1035
+    i32.const 65547
     call $alloc_string
     call $append_array
     drop
-    i32.const 1934
-    i32.const 2135
+    i32.const 66565
+    i32.const 66825
     local.get 0
     call $call_class_method_param
     drop
     local.get 0
     call $dealloc_array
     drop
-    i32.const 1934
-    i32.const 2099
-    i32.const 1648
+    i32.const 66565
+    i32.const 66789
+    i32.const 66279
     call $alloc_string
     local.tee 0
     call $call_class_method_1
@@ -317,8 +377,8 @@
     local.get 0
     call $dealloc_object
     drop
-    i32.const 1934
-    i32.const 1732
+    i32.const 66565
+    i32.const 66363
     call $call_class_method_0
     local.tee 0
     call $print_object
@@ -326,15 +386,15 @@
     local.get 0
     call $dealloc_object
     drop
-    i32.const 1934
+    i32.const 66565
     call $alloc_objc_class
-    i32.const 1203
+    i32.const 65715
     call $call_instance_method_0
     local.tee 0
     call $print_object
     drop
     local.get 0
-    i32.const 1690
+    i32.const 66321
     call $call_instance_method_0
     local.tee 1
     call $print_object
@@ -347,18 +407,20 @@
     drop
     i32.const 0)
   (memory (;0;) 2)
-  (global $__stack_pointer (mut i32) (i32.const 67712))
-  (global (;1;) i32 (i32.const 1024))
-  (global (;2;) i32 (i32.const 2173))
-  (global (;3;) i32 (i32.const 2176))
-  (global (;4;) i32 (i32.const 67712))
-  (global (;5;) i32 (i32.const 1024))
-  (global (;6;) i32 (i32.const 67712))
+  (global $__stack_pointer (mut i32) (i32.const 65536))
+  (global (;1;) i32 (i32.const 65536))
+  (global (;2;) i32 (i32.const 66863))
+  (global (;3;) i32 (i32.const 0))
+  (global (;4;) i32 (i32.const 65536))
+  (global (;5;) i32 (i32.const 65536))
+  (global (;6;) i32 (i32.const 66864))
   (global (;7;) i32 (i32.const 131072))
   (global (;8;) i32 (i32.const 0))
   (global (;9;) i32 (i32.const 1))
+  (global (;10;) i32 (i32.const 65536))
   (export "memory" (memory 0))
   (export "__wasm_call_ctors" (func $__wasm_call_ctors))
+  (export "__stack_pointer" (global $__stack_pointer))
   (export "my_class_ReplaceMe_request" (func $my_class_ReplaceMe_request))
   (export "my_class_ReplaceMe_requestfromto" (func $my_class_ReplaceMe_requestfromto))
   (export "my_instance_ReplaceMe_request" (func $my_instance_ReplaceMe_request))
@@ -373,6 +435,9 @@
   (export "my_instance_ReplaceMe_instancefeatureenabled" (func $my_instance_ReplaceMe_instancefeatureenabled))
   (export "my_instance_ReplaceMe_instancescore" (func $my_instance_ReplaceMe_instancescore))
   (export "my_instance_ReplaceMe_instancecstring" (func $my_instance_ReplaceMe_instancecstring))
+  (export "my_class_ReplaceMe_classbounds" (func $my_class_ReplaceMe_classbounds))
+  (export "my_instance_ReplaceMe_sumofrect" (func $my_instance_ReplaceMe_sumofrect))
+  (export "my_instance_ReplaceMe_fetch" (func $my_instance_ReplaceMe_fetch))
   (export "entry" (func $entry))
   (export "__dso_handle" (global 1))
   (export "__data_end" (global 2))
@@ -383,4 +448,5 @@
   (export "__heap_end" (global 7))
   (export "__memory_base" (global 8))
   (export "__table_base" (global 9))
-  (data $.rodata (i32.const 1024) "I am happy\00WebAssembly\00How are you today\00hello matrix\00my_class_ReplaceMe_request\00my_instance_ReplaceMe_request\00replaced - ReplaceMe request\00replaced + ReplaceMe request\00excellent\00init\00my_class_ReplaceMe_classmagicnumber\00my_instance_ReplaceMe_instancemagicnumber\00classMagicNumber\00instanceMagicNumber\00my_class_ReplaceMe_requestfromto\00my_instance_ReplaceMe_requestfromto\00my_class_ReplaceMe_classtoken\00my_instance_ReplaceMe_instancetoken\00replaced-class-token\00replaced-instance-token\00classToken\00instanceToken\00I am from c program\00sayHi\00my_class_ReplaceMe_classcstring\00my_instance_ReplaceMe_instancecstring\00replaced-class-c-string\00hello-c-string\00replaced-instance-c-string\00returnString\00classCString\00instanceCString\00staticCString\00 morning\00my_class_ReplaceMe_classscore\00my_instance_ReplaceMe_instancescore\00classScore\00instanceScore\00replaced - ReplaceMe requestFrom:Two to:One\00replaced + ReplaceMe requestFrom:Two to:One\00CallMe\00ReplaceMe\00good\00my_class_ReplaceMe_classfeatureenabled\00my_instance_ReplaceMe_instancefeatureenabled\00classFeatureEnabled\00instanceFeatureEnabled\00requestFrom:to:\00echoCString:\00sayYou:andMe:\00sayWord:\00callWithManyArguments:p1:p2:p3:p4:p5:\00"))
+  (export "__wasm_first_page_end" (global 10))
+  (data $.rodata (i32.const 65536) "I am happy\00WebAssembly\00How are you today\00hello matrix\00my_class_ReplaceMe_request\00my_instance_ReplaceMe_request\00replaced - ReplaceMe request\00replaced + ReplaceMe request\00excellent\00init\00my_instance_ReplaceMe_sumofrect\00my_class_ReplaceMe_classbounds\00classBounds\00my_class_ReplaceMe_classmagicnumber\00my_instance_ReplaceMe_instancemagicnumber\00classMagicNumber\00instanceMagicNumber\00my_class_ReplaceMe_requestfromto\00my_instance_ReplaceMe_requestfromto\00my_class_ReplaceMe_classtoken\00my_instance_ReplaceMe_instancetoken\00replaced-class-token\00replaced-instance-token\00classToken\00instanceToken\00I am from c program\00from-wasm-block\00sayHi\00my_instance_ReplaceMe_fetch\00my_class_ReplaceMe_classcstring\00my_instance_ReplaceMe_instancecstring\00replaced-class-c-string\00hello-c-string\00replaced-instance-c-string\00returnString\00classCString\00instanceCString\00staticCString\00 morning\00my_class_ReplaceMe_classscore\00my_instance_ReplaceMe_instancescore\00classScore\00instanceScore\00replaced - ReplaceMe requestFrom:Two to:One\00replaced + ReplaceMe requestFrom:Two to:One\00CallMe\00ReplaceMe\00good\00my_class_ReplaceMe_classfeatureenabled\00my_instance_ReplaceMe_instancefeatureenabled\00classFeatureEnabled\00instanceFeatureEnabled\00sumOfRect:\00doubleRect:\00requestFrom:to:\00fetchWithCompletion:\00recordX:y:w:h:\00echoCString:\00sayYou:andMe:\00sayWord:\00callWithManyArguments:p1:p2:p3:p4:p5:\00"))

@@ -14,7 +14,12 @@ static wap::LoadOptions ToInternalLoadOptions(WAPLoadOptions options) {
     internal.expectedSHA256Hex = options.expected_sha256_hex ? options.expected_sha256_hex : "";
     internal.allowReload = options.allow_reload;
     internal.resetBeforeLoad = options.reset_before_load;
+    internal.strictHooks = options.strict_hooks;
     return internal;
+}
+
+void wap_set_log_handler(WAPLogHandler handler) {
+    wap::SetLogHandler((wap::LogHandler)handler);
 }
 
 WAPLoadOptions wap_recommended_load_options(void) {
@@ -23,6 +28,7 @@ WAPLoadOptions wap_recommended_load_options(void) {
     options.expected_sha256_hex = nullptr;
     options.allow_reload = false;
     options.reset_before_load = false;
+    options.strict_hooks = false;
     return options;
 }
 
