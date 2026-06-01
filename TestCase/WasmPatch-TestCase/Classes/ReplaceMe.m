@@ -32,6 +32,19 @@
     return t;
 }
 
+- (int32_t)readFlags:(WAPFlags)flags {
+    return -1; // replaced by the patch
+}
+
++ (WAPFlags)buildFlags {
+    WAPFlags f = {0, 0, 0}; // replaced by the patch
+    return f;
+}
+
+- (int32_t)readTagged:(WAPTagged)tagged {
+    return -1; // replaced by the patch
+}
+
 + (void)request {
     NSLog(@"+ ReplaceMe request");
 }

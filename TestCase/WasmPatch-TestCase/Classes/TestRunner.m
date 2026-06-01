@@ -188,6 +188,25 @@
     NSLog(@"+ ReplaceMe buildTriple => {%d, %.2f, %lld}", built.a, built.b, built.c);
     WAP_ASSERT(built.a == 7 && fabs(built.b - 2.5) < 0.001 && built.c == 100, @"generic struct return mismatch");
 
+    // bitfield argument: WAPFlags{a=3, b=5, c=7} -> 3 + 5 + 7 = 15
+    WAPFlags inFlags = {0};
+    inFlags.a = 3; inFlags.b = 5; inFlags.c = 7;
+    int32_t flagsSum = [rm readFlags:inFlags];
+    NSLog(@"- ReplaceMe readFlags => %d", flagsSum);
+    WAP_ASSERT(flagsSum == 15, @"bitfield argument mismatch");
+
+    // bitfield return: the patch builds WAPFlags{a=1, b=2, c=300}
+    WAPFlags outFlags = [ReplaceMe buildFlags];
+    NSLog(@"+ ReplaceMe buildFlags => {a=%u, b=%u, c=%u}", outFlags.a, outFlags.b, outFlags.c);
+    WAP_ASSERT(outFlags.a == 1 && outFlags.b == 2 && outFlags.c == 300, @"bitfield return mismatch");
+
+    // union-in-struct argument: WAPTagged{tag=10, value.i=20} -> 30
+    WAPTagged tagged = {0};
+    tagged.tag = 10; tagged.value.i = 20;
+    int32_t taggedSum = [rm readTagged:tagged];
+    NSLog(@"- ReplaceMe readTagged => %d", taggedSum);
+    WAP_ASSERT(taggedSum == 30, @"union-in-struct argument mismatch");
+
 #undef WAP_ASSERT
 
     if (!passed) {

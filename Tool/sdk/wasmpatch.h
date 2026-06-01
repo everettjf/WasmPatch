@@ -96,6 +96,12 @@ extern WAPResultVoid struct_set_int64(WAPObject s, int offset, int64_t value);
 extern WAPResultVoid struct_set_float(WAPObject s, int offset, float value);
 extern WAPResultVoid struct_set_double(WAPObject s, int offset, double value);
 
+// Bitfield access: read/write a run of `bit_width` bits starting at `bit_offset`
+// from the start of the struct (little-endian bit stream, matching clang on
+// Apple platforms). Works for structs that contain bitfields and/or unions.
+extern int64_t struct_get_bits(WAPObject s, int bit_offset, int bit_width);
+extern WAPResultVoid struct_set_bits(WAPObject s, int bit_offset, int bit_width, int64_t value);
+
 // ---------------------------------------------------------------------------
 // Method calls
 // ---------------------------------------------------------------------------

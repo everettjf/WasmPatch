@@ -250,6 +250,8 @@ void ObjcRuntime::initRuntime() {
     RT_LINK(struct_set_int64);
     RT_LINK(struct_set_float);
     RT_LINK(struct_set_double);
+    RT_LINK(struct_get_bits);
+    RT_LINK(struct_set_bits);
 
     RT_LINK(print_object);
     RT_LINK(print_string);
