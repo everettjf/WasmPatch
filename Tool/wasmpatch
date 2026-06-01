@@ -19,15 +19,51 @@ bad()  { printf '[wasmpatch] \033[31mMISS\033[0m %s\n' "$1"; }
 
 usage() {
   cat <<'EOF'
-wasmpatch — build WasmPatch payloads
+wasmpatch — build & sign WasmPatch payloads
 
 Usage:
   wasmpatch doctor
-  wasmpatch build <input.c> [output.wasm]
+  wasmpatch build  <input.c> [output.wasm]
+  wasmpatch keygen <private_key.pem>
+  wasmpatch sign   <input.wasm> <private_key.pem>
+
+Signing uses EC P-256 / ECDSA-SHA256. `sign` prints (and writes sidecars for)
+the public key as an uncompressed point and the X9.62 DER signature, both
+base64 — exactly what WAPPatchLoaderOptions.publicKeyECBase64 / signatureBase64
+expect.
 
 Environment overrides are forwarded to Tool/c2wasm.sh
 (CLANG_BIN, WASM_LD_BIN, WASM2WAT, WAP_SDK_DIR, WAP_EMIT_META).
 EOF
+}
+
+cmd_keygen() {
+  local out="${1:-}"
+  [ -n "$out" ] || { usage; exit 1; }
+  command -v openssl >/dev/null 2>&1 || { bad "openssl is required"; exit 1; }
+  openssl ecparam -name prime256v1 -genkey -noout -out "$out"
+  note "wrote private key: $out"
+  note "public key (base64 uncompressed point):"
+  openssl ec -in "$out" -pubout -outform DER 2>/dev/null | tail -c 65 | openssl base64 -A
+  echo
+}
+
+cmd_sign() {
+  local wasm="${1:-}" key="${2:-}"
+  [ -n "$wasm" ] && [ -n "$key" ] || { usage; exit 1; }
+  [ -f "$wasm" ] || { bad "wasm not found: $wasm"; exit 1; }
+  [ -f "$key" ] || { bad "key not found: $key"; exit 1; }
+  command -v openssl >/dev/null 2>&1 || { bad "openssl is required"; exit 1; }
+
+  local pub sig
+  pub="$(openssl ec -in "$key" -pubout -outform DER 2>/dev/null | tail -c 65 | openssl base64 -A)"
+  sig="$(openssl dgst -sha256 -sign "$key" "$wasm" | openssl base64 -A)"
+
+  printf '%s' "$sig" > "$wasm.sig"
+  printf '%s' "$pub" > "$wasm.pub"
+  note "wrote $wasm.sig and $wasm.pub"
+  echo "publicKeyECBase64: $pub"
+  echo "signatureBase64:   $sig"
 }
 
 resolve_clang() {
@@ -75,6 +111,8 @@ cmd_build() {
 case "${1:-}" in
   doctor) cmd_doctor ;;
   build)  shift; cmd_build "$@" ;;
+  keygen) shift; cmd_keygen "$@" ;;
+  sign)   shift; cmd_sign "$@" ;;
   ""|-h|--help|help) usage ;;
   *) note "unknown command: $1"; usage; exit 1 ;;
 esac

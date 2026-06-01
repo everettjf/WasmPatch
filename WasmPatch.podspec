@@ -28,6 +28,7 @@ Pod::Spec.new do |spec|
   spec.exclude_files = "WasmPatch/Classes/**/*.txt", "WasmPatch/Classes/**/CMakeLists.txt"
   spec.public_header_files = "WasmPatch/Classes/*.h"
 
+  spec.frameworks = 'Security'
   spec.library = 'c++'
   spec.xcconfig = {
        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',

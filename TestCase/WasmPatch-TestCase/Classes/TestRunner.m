@@ -86,6 +86,27 @@
     return [self runAssertionsWithError:errorMessage];
 }
 
++ (BOOL)runSignedValidation:(NSString *)scriptBundlePath
+                  publicKey:(NSString *)publicKeyBase64
+                  signature:(NSString *)signatureBase64
+               errorMessage:(NSString * _Nullable * _Nullable)errorMessage {
+    NSString *scriptPath = [scriptBundlePath stringByAppendingPathComponent:@"objc.wasm"];
+    WAPPatchLoaderOptions *options = [WAPPatchLoader recommendedOptions];
+    options.publicKeyECBase64 = publicKeyBase64;
+    options.signatureBase64 = signatureBase64;
+
+    NSError *loadError = nil;
+    if (![WAPPatchLoader loadPatchAtPath:scriptPath options:options error:&loadError]) {
+        NSString *message = [NSString stringWithFormat:@"signed load failed (code=%ld): %@",
+                             (long)loadError.code, loadError.localizedDescription ?: @"unknown"];
+        NSLog(@"%@", message);
+        if (errorMessage) { *errorMessage = message; }
+        return NO;
+    }
+    NSLog(@"signed load: signature verified, patch applied");
+    return [self runAssertionsWithError:errorMessage];
+}
+
 + (BOOL)runAssertionsWithError:(NSString * _Nullable * _Nullable)errorMessage {
     [ReplaceMe request];
     [ReplaceMe requestFrom:@"One" to:@"Two"];

@@ -21,6 +21,14 @@ NS_ASSUME_NONNULL_BEGIN
                              sha256:(nullable NSString *)sha256Hex
                        errorMessage:(NSString * _Nullable * _Nullable)errorMessage;
 
+/// Load the bundled patch while verifying an EC P-256 signature, then run the
+/// same assertions. Used to validate asymmetric patch signing (and, with a bad
+/// signature, that loading is rejected).
++ (BOOL)runSignedValidation:(NSString *)scriptBundlePath
+                  publicKey:(NSString *)publicKeyBase64
+                  signature:(NSString *)signatureBase64
+               errorMessage:(NSString * _Nullable * _Nullable)errorMessage;
+
 @end
 
 NS_ASSUME_NONNULL_END

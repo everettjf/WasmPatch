@@ -25,8 +25,12 @@
         NSString *message = nil;
         NSString *managerURL = NSProcessInfo.processInfo.environment[@"WASMPATCH_MANAGER_URL"];
         NSString *managerSHA = NSProcessInfo.processInfo.environment[@"WASMPATCH_MANAGER_SHA"];
+        NSString *pubKey = NSProcessInfo.processInfo.environment[@"WASMPATCH_PUBKEY"];
+        NSString *sig = NSProcessInfo.processInfo.environment[@"WASMPATCH_SIG"];
         BOOL ok;
-        if (managerURL.length > 0) {
+        if (pubKey.length > 0) {
+            ok = [TestRunner runSignedValidation:scriptBundlePath publicKey:pubKey signature:sig errorMessage:&message];
+        } else if (managerURL.length > 0) {
             ok = [TestRunner runManagerValidationWithURL:managerURL sha256:managerSHA errorMessage:&message];
         } else {
             ok = [TestRunner runValidation:scriptBundlePath errorMessage:&message];
