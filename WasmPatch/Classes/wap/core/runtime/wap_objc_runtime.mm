@@ -265,7 +265,9 @@ void ObjcRuntime::initRuntime() {
 
     RT_LINK(new_objc_nsstring);
     RT_LINK(new_objc_nsnumber_int);
-    
+
+    RT_LINK(invoke_block);
+
     RT_LINK(replace_class_method);
     RT_LINK(replace_instance_method);
 }

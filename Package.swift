@@ -61,7 +61,10 @@ let package = Package(
         .executableTarget(
             name: "WasmPatchSwiftExample",
             dependencies: ["WasmPatch"],
-            path: "Demo/SwiftExample"
+            path: "Demo/SwiftExample",
+            // The wasm patch source is compiled to wasm by the tooling, not by
+            // SwiftPM (a Swift target can't also contain C sources).
+            exclude: ["patch"]
         ),
     ],
     cxxLanguageStandard: .cxx17

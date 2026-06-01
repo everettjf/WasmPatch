@@ -21,6 +21,8 @@ WasmPatch is an Objective-C/Objective-C++ runtime bridge that lets you compile C
 - Compile the sample testcase: `cd TestCase && sh compile-testcase.sh` (invokes `Tool/c2wasm.sh` internally).
 - Build via SwiftPM: `swift build` (builds the runtime library plus the `WasmPatchSwiftExample` Swift consumer).
 - List a binary's hookable Obj-C method surface: `Tool/scan-hookable.sh <binary> [ClassFilter]`.
+- Validate remote delivery end-to-end (local HTTP server + WAPPatchManager): `sh Tool/validate-remote.sh`.
+- Validate Swift `@objc dynamic` hooking end-to-end (SPM): `sh Tool/validate-swift.sh`.
 - Key files: author SDK `Tool/sdk/wasmpatch.h`; Swift guidance `SWIFT.md`; plan/status `ROADMAP.md`.
 - Install demo pod dependencies: `cd Demo && sh podinstall_all.sh`.
 - Run demos: open `Demo/WasmPatch-iOS/WasmPatch-iOS.xcworkspace` or `Demo/WasmPatch-macOS/WasmPatch-macOS.xcworkspace` in Xcode and run the appropriate scheme.

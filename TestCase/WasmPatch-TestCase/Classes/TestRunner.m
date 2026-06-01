@@ -7,6 +7,7 @@
 
 #import "TestRunner.h"
 #import <WasmPatch/WAPPatchLoader.h>
+#import <WasmPatch/WAPPatchManager.h>
 #import "ReplaceMe.h"
 #import "CallMe.h"
 #include <math.h>
@@ -30,7 +31,62 @@
         }
         return NO;
     }
-    
+
+    return [self runAssertionsWithError:errorMessage];
+}
+
++ (BOOL)runManagerValidationWithURL:(NSString *)urlString
+                             sha256:(NSString *)sha256Hex
+                       errorMessage:(NSString * _Nullable * _Nullable)errorMessage {
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (!url) {
+        if (errorMessage) { *errorMessage = [NSString stringWithFormat:@"invalid url: %@", urlString]; }
+        return NO;
+    }
+
+    __block NSString *cachedPath = nil;
+    __block NSError *fetchError = nil;
+    __block BOOL done = NO;
+    NSLog(@"manager: fetching patch from %@", url);
+    [[WAPPatchManager sharedManager] fetchPatchFromURL:url
+                                                 named:@"remote-validation"
+                                                sha256:sha256Hex
+                                            completion:^(NSString *path, NSError *error) {
+        cachedPath = path;
+        fetchError = error;
+        done = YES;
+    }];
+
+    // Drive the main run loop until the (main-queue) completion fires.
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:30];
+    while (!done && [deadline timeIntervalSinceNow] > 0) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+    }
+
+    if (!done || !cachedPath) {
+        NSString *message = [NSString stringWithFormat:@"manager fetch failed: %@", fetchError.localizedDescription ?: @"timeout"];
+        NSLog(@"%@", message);
+        if (errorMessage) { *errorMessage = message; }
+        return NO;
+    }
+    NSLog(@"manager: cached at %@", cachedPath);
+
+    WAPPatchLoaderOptions *options = [WAPPatchLoader recommendedOptions];
+    options.allowReload = YES;
+    options.resetBeforeLoad = YES;
+    NSError *applyError = nil;
+    if (![[WAPPatchManager sharedManager] applyCachedPatchNamed:@"remote-validation" options:options error:&applyError]) {
+        NSString *message = [NSString stringWithFormat:@"manager apply failed: %@", applyError.localizedDescription ?: @"unknown"];
+        NSLog(@"%@", message);
+        if (errorMessage) { *errorMessage = message; }
+        return NO;
+    }
+    NSLog(@"manager: applied cached patch");
+
+    return [self runAssertionsWithError:errorMessage];
+}
+
++ (BOOL)runAssertionsWithError:(NSString * _Nullable * _Nullable)errorMessage {
     [ReplaceMe request];
     [ReplaceMe requestFrom:@"One" to:@"Two"];
     NSLog(@"+ ReplaceMe classToken => %@", [ReplaceMe classToken]);
@@ -86,6 +142,14 @@
     CGRect recorded = [CallMe recordedRect];
     NSLog(@"+ CallMe recordedRect => {%.1f, %.1f, %.1f, %.1f}", recorded.origin.x, recorded.origin.y, recorded.size.width, recorded.size.height);
     WAP_ASSERT(CGRectEqualToRect(recorded, CGRectMake(2, 4, 6, 8)), @"struct call round-trip mismatch");
+
+    // block bridging: the patched method should invoke our completion handler
+    __block NSString *blockResult = nil;
+    [rm fetchWithCompletion:^(NSString *result) {
+        blockResult = result;
+    }];
+    NSLog(@"- ReplaceMe fetchWithCompletion => %@", blockResult);
+    WAP_ASSERT([blockResult isEqualToString:@"from-wasm-block"], @"completion block bridging mismatch");
 
 #undef WAP_ASSERT
 

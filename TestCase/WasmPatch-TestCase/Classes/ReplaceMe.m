@@ -17,6 +17,12 @@
     return -1; // replaced by the patch
 }
 
+- (void)fetchWithCompletion:(void (^)(NSString *result))completion {
+    if (completion) {
+        completion(@"native"); // replaced by the patch to call back "from-wasm-block"
+    }
+}
+
 + (void)request {
     NSLog(@"+ ReplaceMe request");
 }

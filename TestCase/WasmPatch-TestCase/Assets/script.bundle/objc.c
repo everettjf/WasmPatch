@@ -75,6 +75,16 @@ int my_instance_ReplaceMe_sumofrect(WAPObject self, const char * cmd, WAPArray a
     return (int)sum;
 }
 
+// block argument: invoke the completion handler the method was given
+int my_instance_ReplaceMe_fetch(WAPObject self, const char * cmd, WAPArray args) {
+    WAPObject completion = get_array_item(args, 0);
+    WAPArray callbackArgs = alloc_array();
+    append_array(callbackArgs, new_objc_nsstring("from-wasm-block"));
+    invoke_block(completion, callbackArgs);
+    dealloc_array(callbackArgs);
+    return 0;
+}
+
 int entry() {
     // method call - class method
     call_class_method_0("CallMe", "sayHi");
@@ -116,6 +126,7 @@ int entry() {
     WAP_REPLACE_INSTANCE(ReplaceMe, "instanceScore", my_instance_ReplaceMe_instancescore);
     WAP_REPLACE_INSTANCE(ReplaceMe, "instanceCString", my_instance_ReplaceMe_instancecstring);
     WAP_REPLACE_INSTANCE(ReplaceMe, "sumOfRect:", my_instance_ReplaceMe_sumofrect);
+    WAP_REPLACE_INSTANCE(ReplaceMe, "fetchWithCompletion:", my_instance_ReplaceMe_fetch);
 
     // struct round-trip: build a CGRect, send it through an Obj-C method that
     // returns a CGRect, then forward the doubled fields back via a 4-arg call.

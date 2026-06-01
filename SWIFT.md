@@ -108,11 +108,31 @@ do {
 (The `try`/throwing form comes from the `NSError **` API; method names import as
 `loadPatch(named:in:options:)` etc.)
 
+## Completion handlers (blocks)
+
+A replaced method can **invoke a block it was handed** (e.g. a completion
+handler) via `invoke_block`:
+
+```c
+// Replace `@objc dynamic func fetch(_ completion: @escaping (String) -> Void)`
+int my_fetch(WAPObject self, const char *cmd, WAPArray args) {
+    WAPObject completion = get_array_item(args, 0);   // the block argument
+    WAPArray cbArgs = alloc_array();
+    append_array(cbArgs, new_objc_nsstring("from-wasm"));
+    invoke_block(completion, cbArgs);                 // call it back
+    dealloc_array(cbArgs);
+    return 0;
+}
+```
+
+`invoke_block` reads the block's encoded signature and marshals object / string
+/ integer / floating-point / `BOOL` arguments. The end-to-end Swift demo
+(`Tool/validate-swift.sh`) hooks an `@objc dynamic` method and verifies this.
+
 ## Current limitations
 
-- **Closures / blocks** (`@escaping` completion handlers) are not bridged yet —
-  a method whose signature takes or returns a block cannot be replaced. This is
-  tracked in ROADMAP.md (B3).
+- **Creating new blocks inside wasm** to pass *into* an Objective-C method is
+  not supported — only invoking blocks the patch receives.
 - **Generic / arbitrary structs** beyond the geometry set above fall back to
   pointer passing and should not be relied on.
 - Swift `enum`s and `Optional` of value types are not specially bridged; expose

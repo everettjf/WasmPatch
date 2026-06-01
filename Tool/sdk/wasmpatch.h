@@ -109,6 +109,15 @@ extern WAPResultVoid replace_instance_method(WAPClassName class_name, WAPSelecto
 extern WAPObject new_objc_nsstring(const char * str);
 extern WAPObject new_objc_nsnumber_int(int value);
 
+// ---------------------------------------------------------------------------
+// Blocks / completion handlers
+//   Invoke an Objective-C block handed to a replaced method (e.g. a completion
+//   handler). `args` holds the block's arguments (excluding the block itself);
+//   the return value is the block's result (0 for void).
+// ---------------------------------------------------------------------------
+
+extern WAPObject invoke_block(WAPObject block, WAPArray args);
+
 // ===========================================================================
 // Ergonomic macros
 // ===========================================================================

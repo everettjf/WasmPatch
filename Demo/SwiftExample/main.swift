@@ -1,42 +1,56 @@
-// A minimal Swift consumer of WasmPatch, built by SwiftPM as proof that the
-// Objective-C API imports and type-checks cleanly from Swift. It does not load
-// a real patch here (no bundle in this context); it exercises the API surface
-// described in SWIFT.md.
+// Real end-to-end Swift demo: define an `@objc dynamic` Swift method, then load
+// a WasmPatch payload that replaces it and observe the new behaviour.
+//
+// Run via the harness which compiles the patch and passes its path:
+//   Tool/validate-swift.sh
+// or manually:
+//   swift run WasmPatchSwiftExample /path/to/greeting.wasm
 import Foundation
 import WasmPatch
 
-// Route runtime diagnostics into Swift.
-WAPPatchLoader.setLogHandler { level, message in
-    print("[WasmPatch \(level)] \(message)")
+// An @objc dynamic method on an @objc class is the surface WasmPatch can hook.
+// The explicit @objc(DemoService) name is what the patch references.
+@objc(DemoService)
+final class DemoService: NSObject {
+    @objc dynamic func greeting() -> String { "original-greeting" }
 }
 
-// Build options the way a Swift app would.
-let options = WAPPatchLoaderOptions.recommended()
-options.allowReload = true
-options.strictHooks = true
+func main() -> Int32 {
+    WAPPatchLoader.setLogHandler { level, message in
+        FileHandle.standardError.write("[WasmPatch \(level)] \(message)\n".data(using: .utf8)!)
+    }
 
-// Apply a patch shipped in a bundle (guarded so the example is runnable).
-func applyBundledPatch(named name: String) {
+    let service = DemoService()
+    let before = service.greeting()
+    print("before patch: \(before)")
+
+    guard CommandLine.arguments.count > 1 else {
+        print("no patch path provided; API surface OK, isLoaded=\(WAPPatchLoader.isLoaded())")
+        return 0
+    }
+
+    let patchPath = CommandLine.arguments[1]
+    let options = WAPPatchLoaderOptions.recommended()
+    options.allowReload = true
+    options.resetBeforeLoad = true
+    options.strictHooks = true   // fail loudly if DemoService.greeting isn't found
+
     do {
-        try WAPPatchLoader.loadPatch(named: name, inBundle: Bundle.main, options: options)
-        print("patch applied; loaded = \(WAPPatchLoader.isLoaded())")
+        try WAPPatchLoader.loadPatch(atPath: patchPath, options: options)
     } catch {
-        print("patch load failed: \(error.localizedDescription)")
+        print("FAIL: patch load failed: \(error.localizedDescription)")
+        return 1
     }
+
+    let after = service.greeting()
+    print("after patch:  \(after)")
+
+    guard after == "patched-by-wasm" else {
+        print("FAIL: expected 'patched-by-wasm', got '\(after)'")
+        return 1
+    }
+    print("SWIFT_DEMO_PASS")
+    return 0
 }
 
-// Remote delivery via WAPPatchManager (verify + cache + apply).
-func applyRemotePatch(from url: URL, sha256: String) {
-    WAPPatchManager.shared.fetchPatch(from: url, named: "remote", sha256: sha256) { cachedPath, error in
-        if let cachedPath = cachedPath {
-            try? WAPPatchManager.shared.applyCachedPatch(named: "remote", options: options)
-            print("applied cached patch at \(cachedPath)")
-        } else {
-            print("fetch failed: \(error?.localizedDescription ?? "unknown")")
-        }
-    }
-}
-
-print("WasmPatch Swift example: API surface available. isLoaded=\(WAPPatchLoader.isLoaded())")
-_ = applyBundledPatch
-_ = applyRemotePatch
+exit(main())

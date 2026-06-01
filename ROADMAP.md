@@ -4,7 +4,7 @@
 每个任务都标注了对应的代码落点，便于逐项推进。状态约定：`[ ]` 待办 / `[~]` 进行中 / `[x]` 完成。
 
 > 进度（feat/usability-and-swift-support 分支）：Track A 的 A1/A2/A3/A4 与 Track B 的 B1/B4/B5 已落地，
-> A5 的本地核心（校验/缓存/应用）已实现、网络下发为骨架；B2 以桥接+文档形式覆盖；B3（block）仅文档化为已知限制。
+> A5 远程下发已端到端验证；B3 已支持回调收到的 block（invoke_block）；B2 以桥接+文档形式覆盖。
 > 验证状态见每项 "验收" 与 PR 描述的验证矩阵。
 
 > 现状基线（制定计划时的事实，供后续验证用）：
@@ -53,7 +53,7 @@
 - 验收：一个空 SPM 工程能 `import WasmPatch` 并成功加载一个补丁。
 - 备注：此项是 Track B（Swift 接入）的前置条件。
 
-### A5. 远程下发闭环 — 🟡 本地核心已实现/已编译；网络下发未在本机验证
+### A5. 远程下发闭环 — ✅ 已验证（HTTP 拉取→sha256 校验→缓存→应用，端到端）
 - [ ] 拉取 → 签名校验（非对称，强于当前 sha256）→ 落盘缓存 → 启动按 app 版本/灰度应用 → 失败回滚。
 - [ ] 单补丁禁用/回滚（当前 `reset` 为全量重置）。
 - 备注：价值高但工作量大，排在体验基础项之后。
@@ -79,7 +79,7 @@
 - [ ] 在 `CreateObjectFromObjcTypeEncoding` 与调用编组路径补齐相应类型分支与测试。
 - 验收：替换一个参数/返回为 Swift `String`、`Bool`、`Int` 的 `@objc dynamic` 方法成功。
 
-### B3. block / 闭包桥接 — ⛔ 仍未支持，已在 SWIFT.md/路线图记录为已知限制
+### B3. block / 闭包桥接 — 🟢 已支持回调被替换方法收到的 block（invoke_block，已验证）；wasm 侧创建 block 仍未做
 现状：`@?` 已解析但未处理。现代 Swift API 大量使用 completion handler。
 
 - [ ] Obj-C block 作为入参传入 wasm（至少支持调用回去的能力）。
@@ -92,7 +92,7 @@
 - [x] 构建期扫描工具：分析产物，输出"可被 WasmPatch 替换"的方法白名单；对不可 hook 的目标给出明确提示。
 - 验收：对一个示例 Swift 工程输出可 hook 方法清单。
 
-### B5. Swift 接入体验 + Demo — 🟢 SPM Swift 示例已构建并运行；NS_SWIFT_NAME 注解；独立 Xcode Swift app 仍待补
+### B5. Swift 接入体验 + Demo — ✅ SPM Swift 示例端到端 hook 了 @objc dynamic 方法（已验证）；独立 Xcode GUI app 仍待补
 - [ ] 在 SPM（A4）基础上提供 Swift 封装：`async`/`throws` 风格的加载 API。
 - [ ] 新增 Swift 宿主 Demo（现有 iOS/macOS Demo 均为 `.mm`）。
 - [ ] 新增 Swift TestCase 类（对标现有 `CallMe`/`ReplaceMe`），覆盖 `@objc dynamic` 替换、struct 传参、闭包回调。

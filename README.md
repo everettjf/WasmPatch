@@ -42,6 +42,7 @@ This gives apps the ability to:
 | ✍️ **Author Ergonomics** | `WAP_REPLACE_*` macros (typos fail to compile), scope cleanup pools, `call_*_3/4` |
 | 🛠️ **Runtime Diagnostics** | Host log handler, strict-hook policy, structured load/runtime errors |
 | 📦 **SPM + CocoaPods** | Swift Package Manager and CocoaPods integration |
+| 🧩 **Block Callbacks** | Invoke completion handlers passed into replaced methods (`invoke_block`) |
 | 🦅 **Swift Support** | `@objc dynamic` hooking + hookable-surface scanner — see [SWIFT.md](SWIFT.md) |
 | 🌐 **Remote Delivery** | `WAPPatchManager` — fetch, SHA-256 verify, cache, apply |
 | 🧪 **Regression Assets** | Test case bundle and fixture hosts for bridge validation |
@@ -352,11 +353,12 @@ sh TestCase/compile-testcase.sh
 
 ## Current Maturity
 
-- Author ergonomics (macros, cleanup pools, CLI), struct bridging, host log
-  handler, strict-hook load policy, SPM support, and a Swift hookable-surface
-  scanner are in place.
-- Closures/blocks bridging, asymmetric patch signing, and generic struct support
-  are still open — see [ROADMAP.md](ROADMAP.md).
+- Author ergonomics (macros, cleanup pools, CLI), struct bridging, completion-
+  handler (block) invocation, host log handler, strict-hook load policy, SPM
+  support, remote delivery (`WAPPatchManager`), and Swift `@objc dynamic`
+  hooking are in place and exercised end-to-end (`Tool/validate-*.sh`).
+- Creating blocks from wasm, asymmetric patch signing, and generic struct
+  support remain open — see [ROADMAP.md](ROADMAP.md).
 
 ## Release Checklist
 
