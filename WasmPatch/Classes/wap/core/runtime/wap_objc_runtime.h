@@ -16,11 +16,30 @@
 
 namespace wap {
 
+enum class LogLevel {
+    Info = 0,
+    Warning = 1,
+    Error = 2,
+};
+
+using LogHandler = void (*)(int level, const char *message);
+
+// Install a host log handler. Pass nullptr to fall back to the default
+// (NSLog/printf) sink. Thread-safe.
+void SetLogHandler(LogHandler handler);
+
+// Emit a diagnostic. Routed to the host handler when set, otherwise printed.
+void EmitLog(LogLevel level, const std::string & message);
+
 struct LoadOptions {
     size_t maxBytes = 0;
     std::string expectedSHA256Hex;
     bool allowReload = false;
     bool resetBeforeLoad = false;
+    // When true, a patch whose replace_* calls reference a missing class or
+    // selector causes load to fail instead of silently leaving the method
+    // unpatched.
+    bool strictHooks = false;
 };
 
 class ObjcRuntime {
@@ -39,7 +58,7 @@ public:
     
 private:
     void initRuntime();
-    bool loadBufferLocked(const void * bytes, size_t size);
+    bool loadBufferLocked(const void * bytes, size_t size, bool strictHooks = false);
     bool validateLoadLocked(const std::string & sourceLabel, const void * bytes, size_t size, const LoadOptions & options);
     void resetLocked();
     void setError(const std::string & error);

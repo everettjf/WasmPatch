@@ -225,11 +225,17 @@ public:
         
         result = m3_LinkRawFunction(m_module, "*", function_name, signature, raw_call);
         if (result) {
+            // A module only imports the host functions it actually uses, so a
+            // "function lookup failed" just means this export is unused by the
+            // current patch — expected, not an error.
+            if (result == m3Err_functionLookupFailed) {
+                return true;
+            }
             setError(std::string("m3_LinkRawFunction(") + function_name + "): " + result);
             WAP_LOG_ERROR("m3_LinkRawFunction(%s): %s", function_name, result);
             return false;
         }
-        
+
         clearError();
         return true;
     }

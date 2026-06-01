@@ -7,6 +7,7 @@
 //
 
 #import "wap_objc_method_signature.h"
+#import "wap_objc_struct.h"
 
 namespace wap {
 
@@ -60,7 +61,12 @@ ffi_type* ObjcMethodSignature::ffitypeFromTypeEncoding(const char *encoding) {
         case ':':
             return &ffi_type_pointer;
         case '{': {
-            // todo struct
+            StructKind kind = StructKindFromEncoding(c);
+            ffi_type *structType = StructFFIType(kind);
+            if (structType) {
+                return structType;
+            }
+            // Unsupported struct: fall back to pointer so the cif still builds.
             return &ffi_type_pointer;
         }
     }

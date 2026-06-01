@@ -38,16 +38,20 @@ public:
     std::string selName;
     std::string replacementName;
     bool isInstance;
-    
+
     HookContext context{};
     ObjcMethodSignature signature;
+
+    // Populated when hook() fails; empty on success.
+    std::string lastError;
 
 public:
     ObjcMethodHook(const char *className, const char* selName, bool isInstance, const char *replacementName);
     ~ObjcMethodHook();
-    
-    void hook();
-    
+
+    // Returns true when the method was successfully replaced.
+    bool hook();
+
     static void generalBinding(ffi_cif *cif, void *ret, void* args[],void *user_data);
 };
 

@@ -12,6 +12,7 @@
 #include "export/wap_objc_export_basic.h"
 #include "export/wap_objc_export_array.h"
 #include "export/wap_objc_export_helper.h"
+#include "export/wap_objc_export_struct.h"
 #include "export/wap_objc_export_call.h"
 #include "export/wap_objc_export_hook.h"
 

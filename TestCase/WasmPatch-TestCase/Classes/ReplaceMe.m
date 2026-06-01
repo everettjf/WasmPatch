@@ -9,6 +9,14 @@
 
 @implementation ReplaceMe
 
++ (CGRect)classBounds {
+    return CGRectZero; // replaced by the patch
+}
+
+- (int32_t)sumOfRect:(CGRect)rect {
+    return -1; // replaced by the patch
+}
+
 + (void)request {
     NSLog(@"+ ReplaceMe request");
 }

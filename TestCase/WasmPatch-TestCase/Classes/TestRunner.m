@@ -8,6 +8,7 @@
 #import "TestRunner.h"
 #import <WasmPatch/WAPPatchLoader.h>
 #import "ReplaceMe.h"
+#import "CallMe.h"
 #include <math.h>
 
 @implementation TestRunner
@@ -70,6 +71,21 @@
     WAP_ASSERT([rm instanceFeatureEnabled] == YES, @"instanceFeatureEnabled mismatch");
     WAP_ASSERT(fabs([rm instanceScore] - 8.75) < 0.001, @"instanceScore mismatch");
     WAP_ASSERT(strcmp([rm instanceCString], "replaced-instance-c-string") == 0, @"instanceCString mismatch");
+
+    // struct return from a replaced method
+    CGRect bounds = [ReplaceMe classBounds];
+    NSLog(@"+ ReplaceMe classBounds => {%.1f, %.1f, %.1f, %.1f}", bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
+    WAP_ASSERT(CGRectEqualToRect(bounds, CGRectMake(1, 2, 3, 4)), @"classBounds struct return mismatch");
+
+    // struct argument into a replaced method (10+20+30+40 = 100)
+    int32_t rectSum = [rm sumOfRect:CGRectMake(10, 20, 30, 40)];
+    NSLog(@"- ReplaceMe sumOfRect => %d", rectSum);
+    WAP_ASSERT(rectSum == 100, @"sumOfRect struct argument mismatch");
+
+    // struct round-trip through a normal call: doubleRect(1,2,3,4) -> (2,4,6,8)
+    CGRect recorded = [CallMe recordedRect];
+    NSLog(@"+ CallMe recordedRect => {%.1f, %.1f, %.1f, %.1f}", recorded.origin.x, recorded.origin.y, recorded.size.width, recorded.size.height);
+    WAP_ASSERT(CGRectEqualToRect(recorded, CGRectMake(2, 4, 6, 8)), @"struct call round-trip mismatch");
 
 #undef WAP_ASSERT
 

@@ -20,7 +20,16 @@ typedef struct WAPLoadOptions {
     const char *expected_sha256_hex;
     bool allow_reload;
     bool reset_before_load;
+    // When true, load fails if any replace_* call references a missing class or
+    // selector, instead of silently leaving the method unpatched.
+    bool strict_hooks;
 } WAPLoadOptions;
+
+// Log levels passed to WAPLogHandler: 0 = info, 1 = warning, 2 = error.
+typedef void (*WAPLogHandler)(int level, const char *message);
+
+// Install a diagnostics handler (pass NULL to restore the default sink).
+void wap_set_log_handler(WAPLogHandler handler);
 
 WAPLoadOptions wap_recommended_load_options(void);
 bool wap_load_file(const char * path);

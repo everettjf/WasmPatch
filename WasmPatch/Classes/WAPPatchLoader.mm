@@ -65,6 +65,7 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
     options.maxBytes = raw.max_bytes;
     options.allowReload = raw.allow_reload;
     options.resetBeforeLoad = raw.reset_before_load;
+    options.strictHooks = raw.strict_hooks;
     return options;
 }
 
@@ -75,6 +76,7 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
         _maxBytes = raw.max_bytes;
         _allowReload = raw.allow_reload;
         _resetBeforeLoad = raw.reset_before_load;
+        _strictHooks = raw.strict_hooks;
     }
     return self;
 }
@@ -85,6 +87,7 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
     copy.expectedSHA256Hex = self.expectedSHA256Hex;
     copy.allowReload = self.allowReload;
     copy.resetBeforeLoad = self.resetBeforeLoad;
+    copy.strictHooks = self.strictHooks;
     return copy;
 }
 
@@ -94,6 +97,7 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
     options.expected_sha256_hex = self.expectedSHA256Hex.length > 0 ? self.expectedSHA256Hex.UTF8String : NULL;
     options.allow_reload = self.allowReload;
     options.reset_before_load = self.resetBeforeLoad;
+    options.strict_hooks = self.strictHooks;
     return options;
 }
 
@@ -184,6 +188,22 @@ static NSString *WAPPatchLoaderResolvedPatchName(NSString *name) {
 
 + (void)reset {
     wap_reset_runtime();
+}
+
+static void (^gWAPLogBlock)(NSInteger, NSString *) = nil;
+
+static void WAPPatchLoaderLogTrampoline(int level, const char *message) {
+    void (^block)(NSInteger, NSString *) = gWAPLogBlock;
+    if (!block) {
+        return;
+    }
+    NSString *text = message ? [NSString stringWithUTF8String:message] : @"";
+    block((NSInteger)level, text ?: @"");
+}
+
++ (void)setLogHandler:(void (^ _Nullable)(NSInteger level, NSString *message))handler {
+    gWAPLogBlock = [handler copy];
+    wap_set_log_handler(handler ? WAPPatchLoaderLogTrampoline : NULL);
 }
 
 @end

@@ -26,6 +26,9 @@ typedef NS_ERROR_ENUM(WAPPatchLoaderErrorDomain, WAPPatchLoaderErrorCode) {
 @property (nonatomic, copy, nullable) NSString *expectedSHA256Hex;
 @property (nonatomic, assign) BOOL allowReload;
 @property (nonatomic, assign) BOOL resetBeforeLoad;
+/// When YES, loading fails if any replace_* call references a missing class or
+/// selector, instead of silently leaving the method unpatched.
+@property (nonatomic, assign) BOOL strictHooks;
 
 + (instancetype)recommendedOptions;
 - (WAPLoadOptions)loadOptionsValue;
@@ -45,6 +48,10 @@ typedef NS_ERROR_ENUM(WAPPatchLoaderErrorDomain, WAPPatchLoaderErrorCode) {
 + (BOOL)isLoaded;
 + (NSString * _Nullable)lastErrorMessage;
 + (void)reset;
+
+/// Route WasmPatch runtime diagnostics to a block. Levels: 0 = info, 1 = warning,
+/// 2 = error. Pass nil to restore the default (NSLog) sink.
++ (void)setLogHandler:(void (^ _Nullable)(NSInteger level, NSString *message))handler;
 
 @end
 

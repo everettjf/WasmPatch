@@ -10,21 +10,23 @@
 #define wap_objc_export_call_h
 
 #include "../wap_objc_define.h"
+#include "../wap_objc_runtime.h"
+#include "../../method/wap_objc_struct.h"
 
 
 WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelectorName selector_name, WAPObject params_addr) {
     if (!selector_name) {
-        std::cout << "selector name can not be null" << std::endl;
+        wap::EmitLog(wap::LogLevel::Error, "call failed: selector name can not be null");
         return 0;
     }
-    
+
     WAPClassName class_name = nullptr;
     WAPInternalObject * instance = nullptr;
     if (is_instance) {
         // call instance method
         instance = GetInternalObject(address);
         if (!instance || !instance->value) {
-            std::cout << "instance can not be null" << std::endl;
+            wap::EmitLog(wap::LogLevel::Error, std::string("call failed: instance is null for selector ") + selector_name);
             return 0;
         }
         class_name = object_getClassName(instance->value);
@@ -32,11 +34,11 @@ WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelect
         // call class method
         class_name = (WAPClassName)(void*)address;
     }
-    
-    
+
+
     Class cls = objc_getClass(class_name);
     if (!cls) {
-        std::cout << "class not found: " << class_name << std::endl;
+        wap::EmitLog(wap::LogLevel::Error, std::string("call failed: class not found: ") + (class_name ? class_name : "(null)"));
         return 0;
     }
     SEL sel = sel_registerName(selector_name);
@@ -56,26 +58,25 @@ WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelect
     }
 
     if (!methodSignature) {
-        std::cout << "method signature not found for selector: " << selector_name << std::endl;
+        wap::EmitLog(wap::LogLevel::Error, std::string("call failed: no method signature for ") + class_name + " " + selector_name);
         return 0;
     }
-    
+
     [invocation setSelector:sel];
-    
+
     NSUInteger numberOfArguments = methodSignature.numberOfArguments;
     WAPInternalArray *inputArguments = GetInternalArray(params_addr);
     NSUInteger numberOfInputArguments = inputArguments ? inputArguments->items.size() : 0;
-    
+
     if (numberOfInputArguments > numberOfArguments - 2) {
-        // varidic arguments
-        // not support now
-        // todo
-        std::cout << "varidic argument not support now" << std::endl;
+        // variadic arguments are not supported yet
+        wap::EmitLog(wap::LogLevel::Warning, std::string("call failed: variadic arguments not supported for ") + selector_name);
         return 0;
     }
-    
+
     if (numberOfInputArguments != numberOfArguments - 2) {
-        std::cout << "argument count not match" << std::endl;
+        wap::EmitLog(wap::LogLevel::Error, std::string("call failed: argument count mismatch for ") + selector_name +
+                     " (got " + std::to_string(numberOfInputArguments) + ", expected " + std::to_string(numberOfArguments - 2) + ")");
         return 0;
     }
     
@@ -86,7 +87,7 @@ WAPObject __call_objc_method_param(bool is_instance, uint64_t address, WAPSelect
         
         WAPInternalObject *inputParam = GetInternalObject(inputParamAddr);
         if (!inputParam) {
-            std::cout << "input argument is null" << std::endl;
+            wap::EmitLog(wap::LogLevel::Error, std::string("call failed: input argument is null for ") + selector_name);
             return 0;
         }
         
@@ -149,8 +150,16 @@ break; \
                     break;
                 }
                 case '{': {
-                    // struct
-                    // todo
+                    // Unwrap a bridged struct (NSValue) into a stack buffer and
+                    // hand it to the invocation by value. NSInvocation copies the
+                    // argument bytes, so the buffer only needs to outlive setArgument.
+                    wap::StructKind kind = wap::StructKindFromEncoding(argumentType[0] == 'r' ? argumentType + 1 : argumentType);
+                    if (kind != wap::StructKind::None) {
+                        unsigned char structBuffer[64] = {0};
+                        if (wap::StructUnwrapBytes(kind, inputParam->value, structBuffer)) {
+                            [invocation setArgument:structBuffer atIndex:paramIndex];
+                        }
+                    }
                     break;
                 }
                 case '*':
@@ -237,7 +246,15 @@ break; \
                     WAP_CALL_RET_CASE('d', "d", double)
                     
                 case '{': {
-                    // todo
+                    wap::StructKind kind = wap::StructKindFromEncoding(returnType[0] == 'r' ? returnType + 1 : returnType);
+                    if (kind != wap::StructKind::None) {
+                        unsigned char structBuffer[64] = {0};
+                        [invocation getReturnValue:structBuffer];
+                        NSValue *boxed = wap::StructWrapBytes(kind, structBuffer);
+                        if (boxed) {
+                            return WAPCreateObjectFromObjcValue(wap::StructTypeTag(kind), boxed);
+                        }
+                    }
                     break;
                 }
                 case '*':
@@ -337,6 +354,52 @@ __WAP_EXPORT_FUNCTION(call_class_method_2_raw) {
     auto result = call_class_method_2(class_name, selector_name, param1, param2);
     m3ApiReturn(result);
 }
+
+WAPObject call_class_method_3(WAPClassName class_name, WAPSelectorName selector_name, WAPObject param1, WAPObject param2, WAPObject param3) {
+    auto params = new WAPInternalArray();
+    params->items.push_back(param1);
+    params->items.push_back(param2);
+    params->items.push_back(param3);
+    auto result = call_class_method_param(class_name, selector_name, (WAPObject)(void*)params);
+    delete params;
+    return result;
+}
+
+__WAP_EXPORT_FUNCTION(call_class_method_3_raw) {
+    m3ApiReturnType (WAPObject)
+    m3ApiGetArgMem  (char*, class_name)
+    m3ApiGetArgMem  (char*, selector_name)
+    m3ApiGetArg  (WAPObject, param1)
+    m3ApiGetArg  (WAPObject, param2)
+    m3ApiGetArg  (WAPObject, param3)
+
+    auto result = call_class_method_3(class_name, selector_name, param1, param2, param3);
+    m3ApiReturn(result);
+}
+
+WAPObject call_class_method_4(WAPClassName class_name, WAPSelectorName selector_name, WAPObject param1, WAPObject param2, WAPObject param3, WAPObject param4) {
+    auto params = new WAPInternalArray();
+    params->items.push_back(param1);
+    params->items.push_back(param2);
+    params->items.push_back(param3);
+    params->items.push_back(param4);
+    auto result = call_class_method_param(class_name, selector_name, (WAPObject)(void*)params);
+    delete params;
+    return result;
+}
+
+__WAP_EXPORT_FUNCTION(call_class_method_4_raw) {
+    m3ApiReturnType (WAPObject)
+    m3ApiGetArgMem  (char*, class_name)
+    m3ApiGetArgMem  (char*, selector_name)
+    m3ApiGetArg  (WAPObject, param1)
+    m3ApiGetArg  (WAPObject, param2)
+    m3ApiGetArg  (WAPObject, param3)
+    m3ApiGetArg  (WAPObject, param4)
+
+    auto result = call_class_method_4(class_name, selector_name, param1, param2, param3, param4);
+    m3ApiReturn(result);
+}
 // instance method
 WAPObject call_instance_method_param(WAPObject instance, WAPSelectorName selector_name, WAPObject params_addr) {
     return __call_objc_method_param(true, (uint64_t)instance, selector_name, params_addr);
@@ -404,6 +467,52 @@ __WAP_EXPORT_FUNCTION(call_instance_method_2_raw) {
     m3ApiGetArg  (WAPObject, param2)
     
     auto result = call_instance_method_2(address, selector_name, param1, param2);
+    m3ApiReturn(result);
+}
+
+WAPObject call_instance_method_3(WAPObject instance, WAPSelectorName selector_name, WAPObject param1, WAPObject param2, WAPObject param3) {
+    auto params = new WAPInternalArray();
+    params->items.push_back(param1);
+    params->items.push_back(param2);
+    params->items.push_back(param3);
+    auto result = call_instance_method_param(instance, selector_name, (WAPObject)(void*)params);
+    delete params;
+    return result;
+}
+
+__WAP_EXPORT_FUNCTION(call_instance_method_3_raw) {
+    m3ApiReturnType (WAPObject)
+    m3ApiGetArg  (WAPObject, address)
+    m3ApiGetArgMem  (char*, selector_name)
+    m3ApiGetArg  (WAPObject, param1)
+    m3ApiGetArg  (WAPObject, param2)
+    m3ApiGetArg  (WAPObject, param3)
+
+    auto result = call_instance_method_3(address, selector_name, param1, param2, param3);
+    m3ApiReturn(result);
+}
+
+WAPObject call_instance_method_4(WAPObject instance, WAPSelectorName selector_name, WAPObject param1, WAPObject param2, WAPObject param3, WAPObject param4) {
+    auto params = new WAPInternalArray();
+    params->items.push_back(param1);
+    params->items.push_back(param2);
+    params->items.push_back(param3);
+    params->items.push_back(param4);
+    auto result = call_instance_method_param(instance, selector_name, (WAPObject)(void*)params);
+    delete params;
+    return result;
+}
+
+__WAP_EXPORT_FUNCTION(call_instance_method_4_raw) {
+    m3ApiReturnType (WAPObject)
+    m3ApiGetArg  (WAPObject, address)
+    m3ApiGetArgMem  (char*, selector_name)
+    m3ApiGetArg  (WAPObject, param1)
+    m3ApiGetArg  (WAPObject, param2)
+    m3ApiGetArg  (WAPObject, param3)
+    m3ApiGetArg  (WAPObject, param4)
+
+    auto result = call_instance_method_4(address, selector_name, param1, param2, param3, param4);
     m3ApiReturn(result);
 }
 

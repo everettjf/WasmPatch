@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+#
+# wasmpatch — one-stop CLI for building WasmPatch payloads.
+#
+#   wasmpatch doctor                 Check the toolchain is ready.
+#   wasmpatch build <in.c> [out.wasm]  Compile a patch (+ sha256/meta sidecars).
+#
+# The author SDK header (<wasmpatch.h>) is on the include path automatically,
+# so patch sources just `#include <wasmpatch.h>`.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SDK_DIR="$SCRIPT_DIR/sdk"
+
+note() { printf '[wasmpatch] %s\n' "$1"; }
+ok()   { printf '[wasmpatch] \033[32mOK\033[0m   %s\n' "$1"; }
+bad()  { printf '[wasmpatch] \033[31mMISS\033[0m %s\n' "$1"; }
+
+usage() {
+  cat <<'EOF'
+wasmpatch — build WasmPatch payloads
+
+Usage:
+  wasmpatch doctor
+  wasmpatch build <input.c> [output.wasm]
+
+Environment overrides are forwarded to Tool/c2wasm.sh
+(CLANG_BIN, WASM_LD_BIN, WASM2WAT, WAP_SDK_DIR, WAP_EMIT_META).
+EOF
+}
+
+resolve_clang() {
+  if [ -n "${CLANG_BIN:-}" ]; then echo "$CLANG_BIN"; return; fi
+  for c in /opt/homebrew/opt/llvm/bin/clang /usr/local/opt/llvm/bin/clang "$(command -v clang || true)"; do
+    if [ -n "$c" ] && [ -x "$c" ] && "$c" --print-targets 2>/dev/null | grep -qi wasm; then
+      echo "$c"; return
+    fi
+  done
+  echo ""
+}
+
+cmd_doctor() {
+  local rc=0
+  local clang; clang="$(resolve_clang)"
+  if [ -n "$clang" ]; then ok "clang with wasm target: $clang"; else bad "clang with wasm32 target (try: brew install llvm)"; rc=1; fi
+
+  local wld; wld="${WASM_LD_BIN:-$(command -v wasm-ld || true)}"
+  if [ -n "$wld" ]; then ok "wasm-ld: $wld"; else bad "wasm-ld (install LLVM / wabt)"; rc=1; fi
+
+  local w2w; w2w="${WASM2WAT:-$(command -v wasm2wat || true)}"
+  if [ -n "$w2w" ]; then ok "wasm2wat: $w2w"; else note "wasm2wat not found (optional; .wat generation skipped)"; fi
+
+  if [ -f "$SDK_DIR/wasmpatch.h" ]; then ok "author SDK header: $SDK_DIR/wasmpatch.h"; else bad "author SDK header missing: $SDK_DIR/wasmpatch.h"; rc=1; fi
+
+  if [ "$rc" -eq 0 ]; then note "toolchain ready"; else note "toolchain incomplete — see MISS lines above"; fi
+  return $rc
+}
+
+cmd_build() {
+  if [ "${1:-}" = "" ]; then usage; exit 1; fi
+  local input="$1"
+  local output="${2:-${input%.*}.wasm}"
+  local clang; clang="$(resolve_clang)"
+  if [ -z "$clang" ]; then
+    bad "no clang with wasm32 target found — run 'wasmpatch doctor'"
+    exit 1
+  fi
+  note "input:  $input"
+  note "output: $output"
+  CLANG_BIN="$clang" WASM_LD_BIN="${WASM_LD_BIN:-$(dirname "$clang")/wasm-ld}" \
+    sh "$SCRIPT_DIR/c2wasm.sh" "$input" "$output"
+}
+
+case "${1:-}" in
+  doctor) cmd_doctor ;;
+  build)  shift; cmd_build "$@" ;;
+  ""|-h|--help|help) usage ;;
+  *) note "unknown command: $1"; usage; exit 1 ;;
+esac

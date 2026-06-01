@@ -47,7 +47,11 @@ ObjcMethodHook::~ObjcMethodHook() {
     }
 }
 
-void ObjcMethodHook::hook() {
+bool ObjcMethodHook::hook() {
+    lastError.clear();
+
+    const char *scope = isInstance ? "-" : "+";
+
     Class cls;
     if (isInstance) {
         cls = objc_getClass(this->className.c_str());
@@ -56,18 +60,20 @@ void ObjcMethodHook::hook() {
     }
 
     if (!cls) {
-        printf("WAP Error: no class found for %s\n", this->className.c_str());
-        return;
+        lastError = std::string("class not found: ") + this->className + " (for " + scope + "[" + this->className + " " + this->selName + "])";
+        EmitLog(LogLevel::Error, lastError);
+        return false;
     }
-    
+
     SEL sel = sel_registerName(this->selName.c_str());
     context.targetClass = cls;
     context.targetSelector = sel;
 
     Method method = class_getInstanceMethod(cls, sel);
     if (!method) {
-        printf("Fatal : no method found for class : %s\n", this->className.c_str());
-        return;
+        lastError = std::string("selector not found: ") + scope + "[" + this->className + " " + this->selName + "]";
+        EmitLog(LogLevel::Error, lastError);
+        return false;
     }
 
     const char * typeEncoding = method_getTypeEncoding(method);
@@ -76,7 +82,9 @@ void ObjcMethodHook::hook() {
 
     context.closure = (ffi_closure *)ffi_closure_alloc(sizeof(ffi_closure), (void**)&context.function_address);
     if (!context.closure) {
-        return;
+        lastError = std::string("ffi_closure_alloc failed for ") + scope + "[" + this->className + " " + this->selName + "]";
+        EmitLog(LogLevel::Error, lastError);
+        return false;
     }
 
     signature.parse(typeEncoding);
@@ -85,29 +93,38 @@ void ObjcMethodHook::hook() {
     context.returnType = signature.getFFIReturnType();
 
     if (!context.returnType) {
-        printf("WAP Error: unsupported return type for %s %s\n", this->className.c_str(), this->selName.c_str());
-        return;
+        lastError = std::string("unsupported return type '") + signature.getReturnType() + "' for " + scope + "[" + this->className + " " + this->selName + "]";
+        EmitLog(LogLevel::Error, lastError);
+        ffi_closure_free(context.closure);
+        context.closure = nullptr;
+        return false;
     }
 
     if (ffi_prep_cif(&context.cif, FFI_DEFAULT_ABI, context.argCount,context.returnType, context.args) != FFI_OK) {
+        lastError = std::string("ffi_prep_cif failed for ") + scope + "[" + this->className + " " + this->selName + "]";
+        EmitLog(LogLevel::Error, lastError);
         ffi_closure_free(context.closure);
         context.closure = nullptr;
-        return;
+        return false;
     }
 
     // Initialize the closure
     if (ffi_prep_closure_loc(context.closure, &context.cif, generalBinding, this, context.function_address) != FFI_OK) {
+        lastError = std::string("ffi_prep_closure_loc failed for ") + scope + "[" + this->className + " " + this->selName + "]";
+        EmitLog(LogLevel::Error, lastError);
         ffi_closure_free(context.closure);
         context.closure = nullptr;
-        return;
+        return false;
     }
 
     IMP replacementImp = (IMP)context.function_address;
-    
+
     if (!class_addMethod(cls, sel, replacementImp, typeEncoding)) {
         class_replaceMethod(cls, sel, replacementImp, typeEncoding);
     }
 
+    EmitLog(LogLevel::Info, std::string("replaced ") + scope + "[" + this->className + " " + this->selName + "] -> " + this->replacementName);
+    return true;
 }
 
 }
