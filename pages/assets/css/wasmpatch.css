@@ -234,18 +234,20 @@ a:hover { color: var(--accent); }
 .doc__body tbody tr:hover { background: var(--bg-1); }
 .doc__body td code { white-space: nowrap; }
 
-/* ---- Code panels (rouge) ------------------------------------------------- */
-.doc__body .highlight, .home .highlight {
+/* ---- Code panels (rouge) -------------------------------------------------
+   kramdown emits BOTH <div class="highlight"> and <pre class="highlight">,
+   so the chrome is scoped to the container div to avoid drawing it twice. */
+.doc__body div.highlight, .home div.highlight {
   position: relative; margin: 1.4em 0; border-radius: var(--radius);
   background: var(--code-bg); border: 1px solid var(--line-strong);
   box-shadow: var(--shadow); overflow: hidden;
 }
-.doc__body .highlight::before, .home .highlight::before {
+.doc__body div.highlight::before, .home div.highlight::before {
   content: ""; display: block; height: 38px;
   background: linear-gradient(var(--bg-3), color-mix(in srgb, var(--bg-3) 60%, transparent));
   border-bottom: 1px solid var(--line);
 }
-.doc__body .highlight::after, .home .highlight::after {
+.doc__body div.highlight::after, .home div.highlight::after {
   content: ""; position: absolute; top: 15px; left: 16px;
   width: 9px; height: 9px; border-radius: 50%;
   background: var(--accent);
@@ -253,7 +255,7 @@ a:hover { color: var(--accent); }
   opacity: 0.9;
 }
 .highlight pre, .highlight code { background: none; margin: 0; }
-.highlight pre {
+div.highlight pre {
   padding: 16px 18px 18px; overflow-x: auto;
   font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.65; color: var(--code-ink);
 }
