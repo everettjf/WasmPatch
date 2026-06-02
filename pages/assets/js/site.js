@@ -27,7 +27,7 @@
   });
 
   /* ---- Copy buttons on code blocks ---- */
-  document.querySelectorAll(".highlight").forEach(function (block) {
+  document.querySelectorAll("div.highlight").forEach(function (block) {
     var pre = block.querySelector("pre");
     if (!pre) return;
     var btn = document.createElement("button");
