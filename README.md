@@ -1,5 +1,7 @@
 # WasmPatch 🧱
 
+Repository: <https://github.com/everettjf/wasmpatch>
+
 <div align="center">
 
 [![GitHub Stars](https://img.shields.io/github/stars/everettjf/WasmPatch?style=flat-square&color=FF6B6B)](https://github.com/everettjf/WasmPatch/stargazers)
